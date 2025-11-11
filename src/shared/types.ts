@@ -21,3 +21,14 @@ export interface HotkeyStatus {
   fallback?: string;
   error?: string | null;
 }
+
+export interface TranslationResponse {
+  translatedText: string;
+  detectedSourceLang: string;
+  targetLang: string;
+}
+
+export interface TranslationError {
+  code: string;
+  message: string;
+}

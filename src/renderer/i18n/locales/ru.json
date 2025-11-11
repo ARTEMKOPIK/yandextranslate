@@ -28,5 +28,12 @@
   "hotkey.fallback": "Запасная:",
   "hotkey.reload": "Перезагрузить",
   "overlay.title": "Плавающее окно перевода",
-  "overlay.description": "Нажмите горячую клавишу для вызова окна перевода"
+  "overlay.description": "Нажмите горячую клавишу для вызова окна перевода",
+  "error.apiKey.missing": "Ключ API не настроен. Пожалуйста, добавьте YANDEX_API_KEY в файл .env",
+  "error.apiKey.invalid": "Недействительный ключ API",
+  "error.translation.failed": "Ошибка перевода",
+  "error.translation.network": "Ошибка сети: нет ответа от сервера",
+  "error.translation.rateLimit": "Превышен лимит запросов",
+  "error.translation.serviceUnavailable": "Сервис перевода недоступен",
+  "error.translation.unknown": "Произошла неизвестная ошибка"
 }

@@ -1,12 +1,15 @@
 import { app, BrowserWindow, Menu, ipcMain, globalShortcut, screen } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { getConfig, validateApiKey } from './services/config.js';
+import { TranslationService } from './services/yandex/translator.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null;
 let overlayWindow: BrowserWindow | null;
+let translationService: TranslationService | null = null;
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -22,6 +25,22 @@ const FALLBACK_HOTKEY = 'CommandOrControl+Shift+T';
 
 // Store last overlay position
 let lastOverlayPosition: { x: number; y: number } | null = null;
+
+function initializeTranslationService() {
+  const config = getConfig();
+
+  if (config.yandexApiKey) {
+    translationService = new TranslationService({
+      apiKey: config.yandexApiKey,
+      maxRetries: 3,
+      retryDelayMs: 1000,
+      rateLimitMs: 200,
+    });
+    console.log('Translation service initialized');
+  } else {
+    console.warn('Translation service not initialized: API key not found');
+  }
+}
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -245,6 +264,7 @@ function createMenu() {
 app.on('ready', () => {
   createWindow();
   registerGlobalShortcuts();
+  initializeTranslationService();
 });
 
 app.on('window-all-closed', () => {
@@ -306,4 +326,58 @@ ipcMain.handle('hide-overlay', () => {
 ipcMain.on('reload-shortcuts', () => {
   console.log('Reloading global shortcuts');
   registerGlobalShortcuts();
+});
+
+// Translation service IPC handlers
+ipcMain.handle('translate', async (_, text: string, targetLang: string, sourceLang?: string) => {
+  const validation = validateApiKey();
+
+  if (!validation.valid) {
+    return {
+      success: false,
+      error: {
+        code: 'MISSING_API_KEY',
+        message: validation.error || 'API key is not configured',
+      },
+    };
+  }
+
+  if (!translationService) {
+    initializeTranslationService();
+  }
+
+  if (!translationService) {
+    return {
+      success: false,
+      error: {
+        code: 'SERVICE_UNAVAILABLE',
+        message: 'Translation service is not available',
+      },
+    };
+  }
+
+  try {
+    const result = await translationService.translate(text, targetLang, sourceLang);
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Translation failed';
+    return {
+      success: false,
+      error: {
+        code: 'TRANSLATION_ERROR',
+        message,
+      },
+    };
+  }
+});
+
+ipcMain.handle('validate-api-key', () => {
+  const validation = validateApiKey();
+  return {
+    valid: validation.valid,
+    error: validation.error,
+  };
 });
