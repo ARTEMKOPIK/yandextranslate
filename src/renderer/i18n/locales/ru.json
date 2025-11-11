@@ -1,0 +1,23 @@
+{
+  "app.title": "Яндекс Переводчик",
+  "app.description": "Быстрый и удобный переводчик текстов",
+  "navigation.home": "Главная",
+  "navigation.settings": "Параметры",
+  "navigation.about": "О приложении",
+  "theme.light": "Светлая",
+  "theme.dark": "Темная",
+  "theme.toggle": "Переключить тему",
+  "button.translate": "Перевести",
+  "button.clear": "Очистить",
+  "button.copy": "Копировать",
+  "button.cancel": "Отмена",
+  "button.save": "Сохранить",
+  "button.delete": "Удалить",
+  "input.placeholder.source": "Введите текст для перевода",
+  "input.placeholder.target": "Переведенный текст",
+  "label.source": "Исходный язык",
+  "label.target": "Целевой язык",
+  "message.success": "Успешно",
+  "message.error": "Ошибка",
+  "message.loading": "Загрузка..."
+}
