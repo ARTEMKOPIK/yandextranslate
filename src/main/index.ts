@@ -6,6 +6,7 @@ import { promisify } from 'util';
 import { getConfig, validateApiKey } from './services/config.js';
 import { TranslationService } from './services/yandex/translator.js';
 import { HistoryService } from './services/history.js';
+import { SettingsService } from './services/settings.js';
 
 const execAsync = promisify(exec);
 
@@ -16,6 +17,7 @@ let mainWindow: BrowserWindow | null;
 let overlayWindow: BrowserWindow | null;
 let translationService: TranslationService | null = null;
 let historyService: HistoryService | null = null;
+let settingsService: SettingsService | null = null;
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -25,8 +27,8 @@ const OVERLAY_HEIGHT = 450;
 const OVERLAY_MIN_WIDTH = 450;
 const OVERLAY_MIN_HEIGHT = 400;
 
-// Hotkey configuration
-const PRIMARY_HOTKEY = 'Super+T'; // Win+T on Windows
+// Hotkey configuration (will be loaded from settings)
+let PRIMARY_HOTKEY = 'Super+T'; // Win+T on Windows
 const FALLBACK_HOTKEY = 'CommandOrControl+Shift+T';
 
 // Store last overlay position
@@ -268,10 +270,19 @@ function createMenu() {
 }
 
 app.on('ready', () => {
+  // Initialize services
+  settingsService = new SettingsService();
+  historyService = new HistoryService();
+  initializeTranslationService();
+
+  // Load hotkey from settings
+  if (settingsService) {
+    const settings = settingsService.getSettings();
+    PRIMARY_HOTKEY = settings.hotkeys.overlay;
+  }
+
   createWindow();
   registerGlobalShortcuts();
-  initializeTranslationService();
-  historyService = new HistoryService();
 });
 
 app.on('window-all-closed', () => {
@@ -521,4 +532,73 @@ ipcMain.handle('history:update-config', (_, config) => {
     return null;
   }
   return historyService.updateConfig(config);
+});
+
+// Settings IPC handlers
+ipcMain.handle('settings:get', () => {
+  if (!settingsService) {
+    settingsService = new SettingsService();
+  }
+  return settingsService.getSettings();
+});
+
+ipcMain.handle('settings:update', (_, updates) => {
+  if (!settingsService) {
+    settingsService = new SettingsService();
+  }
+
+  const settings = settingsService.updateSettings(updates);
+
+  // Apply hotkey changes if updated
+  if (updates.hotkeys?.overlay) {
+    PRIMARY_HOTKEY = updates.hotkeys.overlay;
+    registerGlobalShortcuts();
+  }
+
+  // Sync history max entries with history service
+  if (updates.general?.historyMaxEntries && historyService) {
+    historyService.updateConfig({ maxEntries: updates.general.historyMaxEntries });
+  }
+
+  // Notify all windows of settings change
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('settings-changed', settings);
+  }
+  if (overlayWindow && !overlayWindow.isDestroyed()) {
+    overlayWindow.webContents.send('settings-changed', settings);
+  }
+
+  return settings;
+});
+
+ipcMain.handle('settings:reset', () => {
+  if (!settingsService) {
+    settingsService = new SettingsService();
+  }
+
+  const settings = settingsService.resetSettings();
+  PRIMARY_HOTKEY = settings.hotkeys.overlay;
+  registerGlobalShortcuts();
+
+  // Reset history config
+  if (historyService) {
+    historyService.updateConfig({ maxEntries: settings.general.historyMaxEntries });
+  }
+
+  // Notify all windows of settings change
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('settings-changed', settings);
+  }
+  if (overlayWindow && !overlayWindow.isDestroyed()) {
+    overlayWindow.webContents.send('settings-changed', settings);
+  }
+
+  return settings;
+});
+
+ipcMain.handle('settings:validate-hotkey', (_, hotkey: string) => {
+  if (!settingsService) {
+    settingsService = new SettingsService();
+  }
+  return settingsService.validateHotkey(hotkey);
 });

@@ -57,3 +57,26 @@ export interface HistoryConfig {
   maxEntries: number;
   enableEncryption: boolean;
 }
+
+export type ThemeMode = 'light' | 'dark' | 'system';
+export type Language = 'ru' | 'en';
+
+export interface AppSettings {
+  general: {
+    historyMaxEntries: number;
+  };
+  hotkeys: {
+    overlay: string;
+  };
+  interface: {
+    language: Language;
+  };
+  theme: {
+    mode: ThemeMode;
+  };
+}
+
+export interface HotkeyValidation {
+  valid: boolean;
+  error?: string;
+}

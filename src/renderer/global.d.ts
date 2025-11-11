@@ -5,6 +5,8 @@ import type {
   TranslationHistoryEntry,
   HistoryFilter,
   HistoryConfig,
+  AppSettings,
+  HotkeyValidation,
 } from '../shared/types';
 
 export interface TranslateResult {
@@ -63,6 +65,17 @@ export interface ElectronAPI {
     getConfig: () => Promise<HistoryConfig | null>;
     updateConfig: (config: Partial<HistoryConfig>) => Promise<HistoryConfig | null>;
   };
+
+  // Settings operations
+  settings: {
+    get: () => Promise<AppSettings>;
+    update: (updates: Partial<AppSettings>) => Promise<AppSettings>;
+    reset: () => Promise<AppSettings>;
+    validateHotkey: (hotkey: string) => Promise<HotkeyValidation>;
+  };
+
+  // Settings changed event
+  onSettingsChanged: (callback: (settings: AppSettings) => void) => () => void;
 }
 
 declare global {

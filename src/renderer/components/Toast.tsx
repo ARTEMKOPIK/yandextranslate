@@ -91,3 +91,20 @@ export function useToast() {
 
   return { showToast, ToastContainer };
 }
+
+// Global toast notifications
+let globalShowToast: ((message: string, type?: 'success' | 'error' | 'info') => void) | null = null;
+
+export function initGlobalToast(
+  showToastFn: (message: string, type?: 'success' | 'error' | 'info') => void
+) {
+  globalShowToast = showToastFn;
+}
+
+export function showToast(message: string, type: 'success' | 'error' | 'info' = 'info') {
+  if (globalShowToast) {
+    globalShowToast(message, type);
+  } else {
+    console.warn('Toast not initialized. Call initGlobalToast first.');
+  }
+}
