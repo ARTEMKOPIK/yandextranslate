@@ -4,6 +4,7 @@ import clsx from 'clsx';
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
   size?: 'sm' | 'md' | 'lg';
+  fullWidth?: boolean;
   children: React.ReactNode;
   isLoading?: boolean;
 }
@@ -13,6 +14,7 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     {
       variant = 'primary',
       size = 'md',
+      fullWidth = false,
       children,
       isLoading = false,
       disabled,
@@ -22,13 +24,13 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed';
+      'inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-offset-gray-900 disabled:opacity-50 disabled:cursor-not-allowed active:scale-95 hover:shadow-md';
 
     const variantStyles = {
       primary:
-        'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500 dark:hover:bg-primary-500 dark:bg-primary-700',
+        'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 dark:hover:bg-blue-500 dark:bg-blue-700',
       secondary:
-        'bg-secondary-100 text-secondary-900 hover:bg-secondary-200 focus:ring-secondary-500 dark:bg-secondary-800 dark:text-secondary-100 dark:hover:bg-secondary-700',
+        'bg-gray-600 text-white hover:bg-gray-700 focus:ring-gray-500 dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600',
       ghost:
         'text-gray-700 hover:bg-gray-100 focus:ring-gray-400 dark:text-gray-300 dark:hover:bg-gray-700 dark:focus:ring-gray-600',
       danger:
@@ -45,13 +47,25 @@ export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         disabled={disabled || isLoading}
-        className={clsx(baseStyles, variantStyles[variant], sizeStyles[size], className)}
+        className={clsx(
+          baseStyles,
+          variantStyles[variant],
+          sizeStyles[size],
+          fullWidth && 'w-full',
+          className
+        )}
+        aria-busy={isLoading}
+        aria-disabled={disabled || isLoading}
         {...props}
       >
         {isLoading && (
-          <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent" />
+          <span
+            className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-r-transparent"
+            role="status"
+            aria-label="Loading"
+          />
         )}
-        {children}
+        {isLoading ? `${children}...` : children}
       </button>
     );
   }
