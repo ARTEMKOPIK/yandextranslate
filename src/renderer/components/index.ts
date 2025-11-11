@@ -15,3 +15,4 @@ export { HistoryEntry } from './HistoryEntry';
 export { HistorySettings } from './HistorySettings';
 export { Tooltip } from './Tooltip';
 export { Settings } from './Settings/Settings';
+export { ErrorBoundary } from './ErrorBoundary';

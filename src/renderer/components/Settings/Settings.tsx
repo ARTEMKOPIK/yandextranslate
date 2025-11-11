@@ -6,10 +6,12 @@ import { HotkeySettings } from './HotkeySettings';
 import { InterfaceSettings } from './InterfaceSettings';
 import { ThemeSettings } from './ThemeSettings';
 import { TraySettings } from './TraySettings';
+import { LogsSettings } from './LogsSettings';
+import { AnalyticsSettings } from './AnalyticsSettings';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { showToast } from '../Toast';
 
-type SettingsTab = 'general' | 'hotkeys' | 'interface' | 'theme' | 'tray';
+type SettingsTab = 'general' | 'hotkeys' | 'interface' | 'theme' | 'tray' | 'logs' | 'analytics';
 
 export function Settings() {
   const { t } = useTranslation();
@@ -40,6 +42,8 @@ export function Settings() {
     { id: 'interface', label: t('settings.interface.title') },
     { id: 'theme', label: t('settings.theme.title') },
     { id: 'tray', label: t('settings.tray.title') },
+    { id: 'logs', label: t('settings.logs.title') },
+    { id: 'analytics', label: t('settings.analytics.title') },
   ];
 
   if (isLoading || !settings) {
@@ -87,6 +91,8 @@ export function Settings() {
             {activeTab === 'interface' && <InterfaceSettings />}
             {activeTab === 'theme' && <ThemeSettings />}
             {activeTab === 'tray' && <TraySettings />}
+            {activeTab === 'logs' && <LogsSettings />}
+            {activeTab === 'analytics' && <AnalyticsSettings />}
           </Card>
         </div>
       </div>

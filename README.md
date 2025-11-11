@@ -17,6 +17,9 @@ A modern Electron + React + TypeScript application for translation using Yandex 
 - **Yandex.Translate Integration**: Production-ready translation service with auto-detection
 - **Request Queue & Rate Limiting**: Intelligent API request management
 - **Error Handling & Retry Logic**: Graceful degradation with automatic retries
+- **Logging System**: Structured logging with automatic rotation and retention
+- **Usage Analytics**: Anonymous local-only metrics tracking
+- **Error Boundary**: Graceful UI error handling with recovery options
 
 ## 📋 Tech Stack
 
@@ -357,6 +360,72 @@ Tests cover:
 - Request queuing and rate limiting
 
 See `src/main/services/yandex/README.md` for detailed API documentation.
+
+## 📊 Logging and Analytics
+
+The application includes comprehensive logging and analytics features to help with debugging and understanding usage patterns.
+
+### Logging
+
+- **Structured Logs**: All application events are logged with timestamps and context
+- **Automatic Rotation**: Log files rotate automatically at 5MB
+- **Retention Policy**: Last 10 archived logs are kept
+- **Log Locations**:
+  - Windows: `%APPDATA%\yandextranslate\logs\app.log`
+  - macOS: `~/Library/Application Support/yandextranslate/logs/app.log`
+  - Linux: `~/.config/yandextranslate/logs/app.log`
+
+### What Gets Logged
+
+- Application startup and initialization
+- Translation requests (source/target languages, text length)
+- User actions (copy, paste, favorites)
+- Settings changes
+- Errors and warnings
+- API failures
+
+### Accessing Logs
+
+Navigate to **Settings → Logs** to:
+- View recent logs (last 500 lines)
+- Export full logs to a file
+- Open logs folder
+- Clear all logs
+
+### Usage Analytics
+
+Anonymous usage metrics are tracked locally:
+- Translation count
+- Favorite toggles
+- Copy/paste actions
+- Overlay window shows
+- Error count
+
+### Accessing Analytics
+
+Navigate to **Settings → Analytics** to:
+- View usage statistics dashboard
+- Export analytics data as JSON
+- Reset all statistics
+
+### Privacy
+
+- **100% Local**: All logs and analytics are stored only on your computer
+- **No Transmission**: Nothing is ever sent to external servers
+- **Anonymous**: Only counters and technical data, no personal information
+- **No Text Logging**: Translation content is never logged
+- **User Control**: View, export, and delete all data at any time
+
+For detailed technical documentation, see `docs/LOGGING_AND_ANALYTICS.md`.
+
+### Error Boundary
+
+The application includes a React Error Boundary that:
+- Catches UI errors before they crash the app
+- Displays a friendly error message with recovery options
+- Automatically logs errors for debugging
+- Shows detailed error info in development mode
+- Provides "Reload" and "Try Again" buttons for recovery
 
 ## 📝 Environment Variables
 

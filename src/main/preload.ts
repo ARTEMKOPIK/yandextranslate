@@ -84,6 +84,18 @@ export const api = {
     ipcRenderer.on('navigate-to-settings', subscription);
     return () => ipcRenderer.removeListener('navigate-to-settings', subscription);
   },
+
+  // Logging operations
+  getLogs: (limit?: number) => ipcRenderer.invoke('logs:get', limit),
+  clearLogs: () => ipcRenderer.invoke('logs:clear'),
+  openLogsFolder: () => ipcRenderer.invoke('logs:open-folder'),
+  logError: (message: string, context?: string, data?: unknown) =>
+    ipcRenderer.invoke('logs:error', message, context, data),
+
+  // Analytics operations
+  getAnalyticsStats: () => ipcRenderer.invoke('analytics:get-stats'),
+  resetAnalytics: () => ipcRenderer.invoke('analytics:reset'),
+  exportAnalytics: () => ipcRenderer.invoke('analytics:export'),
 };
 
 contextBridge.exposeInMainWorld('api', api);

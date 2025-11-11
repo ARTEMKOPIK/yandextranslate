@@ -19,6 +19,9 @@ import { getConfig, validateApiKey } from './services/config.js';
 import { TranslationService } from './services/yandex/translator.js';
 import { HistoryService } from './services/history.js';
 import { SettingsService } from './services/settings.js';
+import { logger } from './services/logger.js';
+import { analytics } from './services/analytics.js';
+import { shell } from 'electron';
 
 const execAsync = promisify(exec);
 
@@ -58,9 +61,9 @@ function initializeTranslationService() {
       retryDelayMs: 1000,
       rateLimitMs: 200,
     });
-    console.log('Translation service initialized');
+    logger.info('Translation service initialized', 'Main');
   } else {
-    console.warn('Translation service not initialized: API key not found');
+    logger.warn('Translation service not initialized: API key not found', 'Main');
   }
 }
 
@@ -203,12 +206,15 @@ function toggleOverlayWindow() {
     saveOverlayPosition();
     overlayWindow.hide();
     overlayWindow.webContents.send('overlay-hidden');
+    logger.debug('Overlay window hidden', 'Overlay');
   } else {
     const position = getOverlayPosition();
     overlayWindow.setPosition(position.x, position.y);
     overlayWindow.show();
     overlayWindow.focus();
     overlayWindow.webContents.send('overlay-shown');
+    analytics.trackOverlayShow();
+    logger.debug('Overlay window shown', 'Overlay');
   }
 }
 
@@ -224,9 +230,9 @@ function registerGlobalShortcuts() {
 
   if (tryRegisterPrimary) {
     registeredShortcut = PRIMARY_HOTKEY;
-    console.log(`Registered primary hotkey: ${PRIMARY_HOTKEY}`);
+    logger.info(`Registered primary hotkey: ${PRIMARY_HOTKEY}`, 'Hotkeys');
   } else {
-    console.warn(`Failed to register primary hotkey: ${PRIMARY_HOTKEY}`);
+    logger.warn(`Failed to register primary hotkey: ${PRIMARY_HOTKEY}`, 'Hotkeys');
 
     const tryRegisterFallback = globalShortcut.register(FALLBACK_HOTKEY, () => {
       toggleOverlayWindow();
@@ -234,10 +240,10 @@ function registerGlobalShortcuts() {
 
     if (tryRegisterFallback) {
       registeredShortcut = FALLBACK_HOTKEY;
-      console.log(`Registered fallback hotkey: ${FALLBACK_HOTKEY}`);
+      logger.info(`Registered fallback hotkey: ${FALLBACK_HOTKEY}`, 'Hotkeys');
       errorMessage = `Primary hotkey ${PRIMARY_HOTKEY} is unavailable. Using fallback ${FALLBACK_HOTKEY} instead.`;
     } else {
-      console.error(`Failed to register both primary and fallback hotkeys`);
+      logger.error('Failed to register both primary and fallback hotkeys', 'Hotkeys');
       errorMessage = `Failed to register hotkeys. Both ${PRIMARY_HOTKEY} and ${FALLBACK_HOTKEY} are in use by another application.`;
     }
   }
@@ -576,7 +582,7 @@ ipcMain.handle('hide-overlay', () => {
 });
 
 ipcMain.on('reload-shortcuts', () => {
-  console.log('Reloading global shortcuts');
+  logger.info('Reloading global shortcuts', 'IPC');
   registerGlobalShortcuts();
 });
 
@@ -611,6 +617,14 @@ ipcMain.handle('translate', async (_, text: string, targetLang: string, sourceLa
   try {
     const result = await translationService.translate(text, targetLang, sourceLang);
 
+    // Track translation
+    analytics.trackTranslation();
+    logger.info('Translation completed', 'Translation', {
+      sourceLang: result.detectedSourceLang,
+      targetLang: result.targetLang,
+      textLength: text.length,
+    });
+
     // Add to history
     if (historyService) {
       historyService.addEntry(
@@ -635,8 +649,15 @@ ipcMain.handle('translate', async (_, text: string, targetLang: string, sourceLa
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Translation failed';
 
+    // Track and log error
+    analytics.trackError();
+    logger.error('Translation failed', 'Translation', { error: message });
+
     // Show error notification
-    showTrayNotification('Ошибка перевода', message);
+    const settings = settingsService?.getSettings();
+    if (settings?.tray.showNotifications) {
+      showTrayNotification('Ошибка перевода', message);
+    }
 
     return {
       success: false,
@@ -660,9 +681,11 @@ ipcMain.handle('validate-api-key', () => {
 ipcMain.handle('copy-to-clipboard', (_, text: string) => {
   try {
     clipboard.writeText(text);
+    analytics.trackCopy();
+    logger.debug('Text copied to clipboard', 'Clipboard');
     return true;
   } catch (error) {
-    console.error('Failed to copy to clipboard:', error);
+    logger.error('Failed to copy to clipboard', 'Clipboard', error);
     return false;
   }
 });
@@ -671,7 +694,7 @@ ipcMain.handle('read-clipboard', () => {
   try {
     return clipboard.readText();
   } catch (error) {
-    console.error('Failed to read clipboard:', error);
+    logger.error('Failed to read clipboard', 'Clipboard', error);
     return '';
   }
 });
@@ -715,9 +738,12 @@ ipcMain.handle('paste-into-active-window', async (_, text: string) => {
       clipboard.writeText(previousClipboard);
     }, 500);
 
+    analytics.trackPaste();
+    logger.debug('Text pasted into active window', 'Paste');
+
     return true;
   } catch (error) {
-    console.error('Failed to paste into active window:', error);
+    logger.error('Failed to paste into active window', 'Paste', error);
     return false;
   }
 });
@@ -741,7 +767,12 @@ ipcMain.handle('history:toggle-favorite', (_, id: string) => {
   if (!historyService) {
     return null;
   }
-  return historyService.toggleFavorite(id);
+  const result = historyService.toggleFavorite(id);
+  if (result) {
+    analytics.trackFavoriteToggle(result.isFavorite);
+    logger.debug('Favorite toggled', 'History', { id, isFavorite: result.isFavorite });
+  }
+  return result;
 });
 
 ipcMain.handle('history:delete', (_, id: string) => {
@@ -851,4 +882,77 @@ ipcMain.handle('settings:validate-hotkey', (_, hotkey: string) => {
     settingsService = new SettingsService();
   }
   return settingsService.validateHotkey(hotkey);
+});
+
+// Logging IPC handlers
+ipcMain.handle('logs:get', async (_, limit?: number) => {
+  try {
+    const logs = await logger.getLogs(limit);
+    return { success: true, data: logs };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to get logs';
+    logger.error('Failed to get logs', 'IPC', error);
+    return { success: false, error: message };
+  }
+});
+
+ipcMain.handle('logs:clear', async () => {
+  try {
+    await logger.clearLogs();
+    logger.info('Logs cleared by user', 'Logs');
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to clear logs';
+    logger.error('Failed to clear logs', 'IPC', error);
+    return { success: false, error: message };
+  }
+});
+
+ipcMain.handle('logs:open-folder', async () => {
+  try {
+    const logsPath = logger.getLogsPath();
+    await shell.openPath(logsPath);
+    logger.info('Logs folder opened', 'Logs');
+  } catch (error) {
+    logger.error('Failed to open logs folder', 'IPC', error);
+  }
+});
+
+ipcMain.handle('logs:error', async (_, message: string, context?: string, data?: unknown) => {
+  logger.error(message, context, data);
+});
+
+// Analytics IPC handlers
+ipcMain.handle('analytics:get-stats', async () => {
+  try {
+    const stats = analytics.getStats();
+    return { success: true, data: stats };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to get analytics stats';
+    logger.error('Failed to get analytics stats', 'IPC', error);
+    return { success: false, error: message };
+  }
+});
+
+ipcMain.handle('analytics:reset', async () => {
+  try {
+    const stats = analytics.reset();
+    logger.info('Analytics reset by user', 'Analytics');
+    return { success: true, data: stats };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to reset analytics';
+    logger.error('Failed to reset analytics', 'IPC', error);
+    return { success: false, error: message };
+  }
+});
+
+ipcMain.handle('analytics:export', async () => {
+  try {
+    const data = analytics.exportStats();
+    return { success: true, data };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to export analytics';
+    logger.error('Failed to export analytics', 'IPC', error);
+    return { success: false, error: message };
+  }
 });
