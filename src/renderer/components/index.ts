@@ -9,3 +9,7 @@ export { Card, type CardProps } from './Card';
 export { HotkeyStatus } from './HotkeyStatus';
 export { Toast, useToast, type ToastProps } from './Toast';
 export { Spinner } from './Spinner';
+export { History } from './History';
+export { Favorites } from './Favorites';
+export { HistoryEntry } from './HistoryEntry';
+export { HistorySettings } from './HistorySettings';

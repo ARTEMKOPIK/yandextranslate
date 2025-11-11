@@ -50,6 +50,18 @@ export const api = {
   copyToClipboard: (text: string) => ipcRenderer.invoke('copy-to-clipboard', text),
   readClipboard: () => ipcRenderer.invoke('read-clipboard'),
   pasteIntoActiveWindow: (text: string) => ipcRenderer.invoke('paste-into-active-window', text),
+
+  // History operations
+  history: {
+    get: (filter?: unknown) => ipcRenderer.invoke('history:get', filter),
+    getFavorites: () => ipcRenderer.invoke('history:get-favorites'),
+    toggleFavorite: (id: string) => ipcRenderer.invoke('history:toggle-favorite', id),
+    delete: (id: string) => ipcRenderer.invoke('history:delete', id),
+    clear: (keepFavorites: boolean) => ipcRenderer.invoke('history:clear', keepFavorites),
+    getStats: () => ipcRenderer.invoke('history:get-stats'),
+    getConfig: () => ipcRenderer.invoke('history:get-config'),
+    updateConfig: (config: unknown) => ipcRenderer.invoke('history:update-config', config),
+  },
 };
 
 contextBridge.exposeInMainWorld('api', api);
