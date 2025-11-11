@@ -12,7 +12,6 @@ import {
   Notification,
 } from 'electron';
 import path from 'path';
-import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { getConfig, validateApiKey } from './services/config.js';
@@ -25,9 +24,6 @@ import { updater } from './services/updater.js';
 import { shell } from 'electron';
 
 const execAsync = promisify(exec);
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null;
 let overlayWindow: BrowserWindow | null;
