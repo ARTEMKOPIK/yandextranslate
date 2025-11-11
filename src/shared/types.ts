@@ -13,3 +13,11 @@ export interface TranslationResult {
   sourceLang: string;
   targetLang: string;
 }
+
+export interface HotkeyStatus {
+  registered: boolean;
+  shortcut: string | null;
+  primary?: string;
+  fallback?: string;
+  error?: string | null;
+}

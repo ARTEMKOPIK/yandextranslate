@@ -4,3 +4,4 @@ export { H1, H2, H3, H4, P, Small, Label } from './Typography';
 export { AppShell, type AppShellProps } from './AppShell';
 export { ThemeToggle } from './ThemeToggle';
 export { Card, type CardProps } from './Card';
+export { HotkeyStatus } from './HotkeyStatus';
