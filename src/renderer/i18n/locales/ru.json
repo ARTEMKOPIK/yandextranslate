@@ -13,11 +13,20 @@
   "button.cancel": "Отмена",
   "button.save": "Сохранить",
   "button.delete": "Удалить",
+  "button.toggleOverlay": "Переключить оверлей",
   "input.placeholder.source": "Введите текст для перевода",
   "input.placeholder.target": "Переведенный текст",
   "label.source": "Исходный язык",
   "label.target": "Целевой язык",
   "message.success": "Успешно",
   "message.error": "Ошибка",
-  "message.loading": "Загрузка..."
+  "message.loading": "Загрузка...",
+  "hotkey.title": "Горячие клавиши",
+  "hotkey.registered": "Зарегистрирована комбинация:",
+  "hotkey.notRegistered": "Не удалось зарегистрировать горячие клавиши",
+  "hotkey.primary": "Основная:",
+  "hotkey.fallback": "Запасная:",
+  "hotkey.reload": "Перезагрузить",
+  "overlay.title": "Плавающее окно перевода",
+  "overlay.description": "Нажмите горячую клавишу для вызова окна перевода"
 }

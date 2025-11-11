@@ -10,6 +10,9 @@ A modern Electron + React + TypeScript application for translation using Yandex 
 - **Hot Module Replacement**: Instant renderer updates during development
 - **ESLint + Prettier**: Code quality and formatting
 - **GitHub Actions**: Automated CI/CD pipeline
+- **Floating Overlay Window**: Always-on-top translation window with global hotkeys
+- **Theme Support**: Light/dark mode with system detection
+- **Internationalization**: Multi-language support (Russian default)
 
 ## 📋 Tech Stack
 
@@ -126,6 +129,43 @@ yandextranslate/
 - **Node Integration**: Disabled in renderer process
 - **Remote Module**: Disabled
 
+## ⌨️ Floating Overlay Window
+
+The application includes a floating overlay window for quick translations without switching focus from your work.
+
+### Global Hotkeys
+
+- **Primary**: `Win+T` (Windows) / `Super+T` (Linux)
+- **Fallback**: `Ctrl+Shift+T` (all platforms)
+
+If the primary hotkey conflicts with another application, the fallback will be used automatically.
+
+### Features
+
+- **Always-on-Top**: The overlay stays above other windows
+- **Frameless & Transparent**: Sleek, modern design with rounded corners
+- **Smart Positioning**: Appears near your cursor on first show, remembers last position
+- **Auto-Focus**: Text input is automatically focused when shown
+- **Keyboard Shortcuts**:
+  - `Enter`: Translate text
+  - `Escape`: Hide overlay
+- **Compact UI**: Optimized for quick translations (400×300px)
+
+### Usage
+
+1. Press `Win+T` anywhere to show the overlay
+2. Start typing immediately (input is auto-focused)
+3. Press `Enter` to translate or `Escape` to hide
+4. Click the X button or press `Escape` to close
+
+### Testing in Development
+
+You can test the overlay window from the main application:
+1. Look for the "Floating Translation Window" card
+2. Check the registered hotkey status
+3. Use the "Toggle Overlay" button for manual testing
+4. Use "Reload" to re-register hotkeys if needed
+
 ## 🔄 IPC Communication
 
 The preload script exposes a secure API for renderer-to-main communication:
@@ -133,6 +173,17 @@ The preload script exposes a secure API for renderer-to-main communication:
 ```typescript
 // In renderer (React component)
 const version = await window.api.getVersion()
+
+// Toggle overlay window
+await window.api.toggleOverlay()
+
+// Get hotkey status
+const status = await window.api.getHotkeyStatus()
+
+// Listen for overlay events
+window.api.onOverlayShown(() => {
+  console.log('Overlay shown')
+})
 ```
 
 ## 🐛 Debugging

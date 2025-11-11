@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { AppShell, Button, Card, H1, H3, Input, P, ThemeToggle } from './components';
+import { AppShell, Button, Card, H1, H3, HotkeyStatus, Input, P, ThemeToggle } from './components';
 import { useTheme } from './contexts/ThemeContext';
 
 function App() {
@@ -34,10 +34,9 @@ function App() {
       main={
         <div className="p-8 max-w-4xl mx-auto w-full">
           <Card variant="elevated" className="p-6 mb-6">
-            <H3 className="mb-4">{t('app.description')}</H3>
-            <P className="text-gray-600 dark:text-gray-400">
-              {t('app.title')} — {t('app.description')}
-            </P>
+            <H3 className="mb-4">{t('overlay.title')}</H3>
+            <P className="text-gray-600 dark:text-gray-400 mb-4">{t('overlay.description')}</P>
+            <HotkeyStatus />
           </Card>
 
           <Card variant="elevated" className="p-6 mb-6">
