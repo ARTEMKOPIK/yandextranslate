@@ -10,7 +10,7 @@
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "noEmit": false,
-    "outDir": "dist/main",
+    "outDir": "dist",
 
     /* Linting */
     "strict": true,
