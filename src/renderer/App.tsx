@@ -20,7 +20,7 @@ import { useTheme } from './contexts/ThemeContext';
 
 type Tab = 'demo' | 'history' | 'favorites' | 'settings';
 
-function App() {
+function AppContent() {
   const { t } = useTranslation();
   const { theme } = useTheme();
   const [count, setCount] = useState(0);
@@ -208,6 +208,10 @@ function App() {
       />
     </>
   );
+}
+
+function App() {
+  return <AppContent />;
 }
 
 export default App;
