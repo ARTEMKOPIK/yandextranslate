@@ -90,3 +90,18 @@ export interface HotkeyValidation {
   valid: boolean;
   error?: string;
 }
+
+export interface UsageMetrics {
+  translations: number;
+  favorites: number;
+  pastes: number;
+  copies: number;
+  overlayShows: number;
+  errors: number;
+  lastReset: number;
+}
+
+export interface AnalyticsStats extends UsageMetrics {
+  since: string;
+  daysTracked: number;
+}

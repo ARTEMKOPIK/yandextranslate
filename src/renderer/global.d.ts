@@ -8,6 +8,7 @@ import type {
   AppSettings,
   HotkeyValidation,
   DeepPartial,
+  AnalyticsStats,
 } from '../shared/types';
 
 export interface TranslateResult {
@@ -80,6 +81,17 @@ export interface ElectronAPI {
 
   // Navigate to settings event (from tray menu)
   onNavigateToSettings: (callback: () => void) => () => void;
+
+  // Logging operations
+  getLogs: (limit?: number) => Promise<{ success: boolean; data?: string; error?: string }>;
+  clearLogs: () => Promise<{ success: boolean; error?: string }>;
+  openLogsFolder: () => Promise<void>;
+  logError: (message: string, context?: string, data?: unknown) => Promise<void>;
+
+  // Analytics operations
+  getAnalyticsStats: () => Promise<{ success: boolean; data?: AnalyticsStats; error?: string }>;
+  resetAnalytics: () => Promise<{ success: boolean; data?: AnalyticsStats; error?: string }>;
+  exportAnalytics: () => Promise<{ success: boolean; data?: string; error?: string }>;
 }
 
 declare global {
