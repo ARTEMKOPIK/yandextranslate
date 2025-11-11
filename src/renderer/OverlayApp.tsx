@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, Card, Textarea, Select, P, Spinner, useToast } from './components';
 import { SUPPORTED_LANGUAGES, getLanguageName } from '../shared/languages';
+import { useHistoryStore } from './stores/historyStore';
 
 interface TranslationState {
   sourceText: string;
@@ -16,7 +17,9 @@ export function OverlayApp() {
   const { t } = useTranslation();
   const { showToast, ToastContainer } = useToast();
   const [isVisible, setIsVisible] = useState(false);
+  const [showFavorites, setShowFavorites] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const { favorites, loadFavorites } = useHistoryStore();
 
   const [state, setState] = useState<TranslationState>({
     sourceText: '',
@@ -30,6 +33,7 @@ export function OverlayApp() {
   useEffect(() => {
     const unsubscribeShown = window.api.onOverlayShown(() => {
       setIsVisible(true);
+      loadFavorites();
       setTimeout(() => {
         textareaRef.current?.focus();
       }, 100);
@@ -43,7 +47,7 @@ export function OverlayApp() {
       unsubscribeShown();
       unsubscribeHidden();
     };
-  }, []);
+  }, [loadFavorites]);
 
   const handleTranslate = async () => {
     if (!state.sourceText.trim()) {
@@ -123,6 +127,14 @@ export function OverlayApp() {
     await window.api.hideOverlay();
   };
 
+  const handleFavoriteInsert = (text: string) => {
+    setState((prev) => ({
+      ...prev,
+      translatedText: text,
+    }));
+    setShowFavorites(false);
+  };
+
   return (
     <>
       <ToastContainer />
@@ -147,28 +159,74 @@ export function OverlayApp() {
             <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
               {t('app.title')}
             </h2>
-            <button
-              onClick={handleClose}
-              className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-              aria-label="Close"
-            >
-              <svg
-                className="w-5 h-5 text-gray-500 dark:text-gray-400"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowFavorites(!showFavorites)}
+                className={`p-1 rounded-lg transition-colors ${
+                  showFavorites
+                    ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-600 dark:text-yellow-400'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'
+                }`}
+                aria-label="Favorites"
+                title={t('favorites.title')}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M6 18L18 6M6 6l12 12"
-                />
-              </svg>
-            </button>
+                <svg
+                  className="w-5 h-5"
+                  fill={showFavorites ? 'currentColor' : 'none'}
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"
+                  />
+                </svg>
+              </button>
+              <button
+                onClick={handleClose}
+                className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                aria-label="Close"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-500 dark:text-gray-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className="space-y-3">
+            {/* Favorites Panel */}
+            {showFavorites && favorites.length > 0 && (
+              <div className="max-h-32 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg p-2 space-y-1">
+                {favorites.slice(0, 5).map((fav) => (
+                  <button
+                    key={fav.id}
+                    onClick={() => handleFavoriteInsert(fav.translatedText)}
+                    className="w-full text-left p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors text-xs"
+                  >
+                    <div className="text-gray-900 dark:text-white truncate">
+                      {fav.translatedText}
+                    </div>
+                    <div className="text-gray-500 dark:text-gray-400 truncate text-xs">
+                      {fav.sourceText}
+                    </div>
+                  </button>
+                ))}
+              </div>
+            )}
+
             {/* Source Text Input */}
             <Textarea
               ref={textareaRef}

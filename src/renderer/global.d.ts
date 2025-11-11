@@ -1,4 +1,11 @@
-import type { HotkeyStatus, TranslationResponse, TranslationError } from '../shared/types';
+import type {
+  HotkeyStatus,
+  TranslationResponse,
+  TranslationError,
+  TranslationHistoryEntry,
+  HistoryFilter,
+  HistoryConfig,
+} from '../shared/types';
 
 export interface TranslateResult {
   success: boolean;
@@ -38,6 +45,24 @@ export interface ElectronAPI {
   copyToClipboard: (text: string) => Promise<boolean>;
   readClipboard: () => Promise<string>;
   pasteIntoActiveWindow: (text: string) => Promise<boolean>;
+
+  // History operations
+  history: {
+    get: (filter?: HistoryFilter) => Promise<TranslationHistoryEntry[]>;
+    getFavorites: () => Promise<TranslationHistoryEntry[]>;
+    toggleFavorite: (id: string) => Promise<TranslationHistoryEntry | null>;
+    delete: (id: string) => Promise<boolean>;
+    clear: (keepFavorites: boolean) => Promise<number>;
+    getStats: () => Promise<{
+      totalEntries: number;
+      favoritesCount: number;
+      totalUsage: number;
+      oldestEntry: number | null;
+      newestEntry: number | null;
+    } | null>;
+    getConfig: () => Promise<HistoryConfig | null>;
+    updateConfig: (config: Partial<HistoryConfig>) => Promise<HistoryConfig | null>;
+  };
 }
 
 declare global {

@@ -5,6 +5,7 @@ import { exec } from 'child_process';
 import { promisify } from 'util';
 import { getConfig, validateApiKey } from './services/config.js';
 import { TranslationService } from './services/yandex/translator.js';
+import { HistoryService } from './services/history.js';
 
 const execAsync = promisify(exec);
 
@@ -14,6 +15,7 @@ const __dirname = path.dirname(__filename);
 let mainWindow: BrowserWindow | null;
 let overlayWindow: BrowserWindow | null;
 let translationService: TranslationService | null = null;
+let historyService: HistoryService | null = null;
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -269,6 +271,7 @@ app.on('ready', () => {
   createWindow();
   registerGlobalShortcuts();
   initializeTranslationService();
+  historyService = new HistoryService();
 });
 
 app.on('window-all-closed', () => {
@@ -362,6 +365,17 @@ ipcMain.handle('translate', async (_, text: string, targetLang: string, sourceLa
 
   try {
     const result = await translationService.translate(text, targetLang, sourceLang);
+
+    // Add to history
+    if (historyService) {
+      historyService.addEntry(
+        text,
+        result.translatedText,
+        result.detectedSourceLang,
+        result.targetLang
+      );
+    }
+
     return {
       success: true,
       data: result,
@@ -450,4 +464,61 @@ ipcMain.handle('paste-into-active-window', async (_, text: string) => {
     console.error('Failed to paste into active window:', error);
     return false;
   }
+});
+
+// History IPC handlers
+ipcMain.handle('history:get', (_, filter) => {
+  if (!historyService) {
+    return [];
+  }
+  return historyService.getHistory(filter);
+});
+
+ipcMain.handle('history:get-favorites', () => {
+  if (!historyService) {
+    return [];
+  }
+  return historyService.getFavorites();
+});
+
+ipcMain.handle('history:toggle-favorite', (_, id: string) => {
+  if (!historyService) {
+    return null;
+  }
+  return historyService.toggleFavorite(id);
+});
+
+ipcMain.handle('history:delete', (_, id: string) => {
+  if (!historyService) {
+    return false;
+  }
+  return historyService.deleteEntry(id);
+});
+
+ipcMain.handle('history:clear', (_, keepFavorites: boolean) => {
+  if (!historyService) {
+    return 0;
+  }
+  return historyService.clearHistory(keepFavorites);
+});
+
+ipcMain.handle('history:get-stats', () => {
+  if (!historyService) {
+    return null;
+  }
+  return historyService.getStats();
+});
+
+ipcMain.handle('history:get-config', () => {
+  if (!historyService) {
+    return null;
+  }
+  return historyService.getConfig();
+});
+
+ipcMain.handle('history:update-config', (_, config) => {
+  if (!historyService) {
+    return null;
+  }
+  return historyService.updateConfig(config);
 });

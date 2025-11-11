@@ -32,3 +32,28 @@ export interface TranslationError {
   code: string;
   message: string;
 }
+
+export interface TranslationHistoryEntry {
+  id: string;
+  sourceText: string;
+  translatedText: string;
+  sourceLang: string;
+  targetLang: string;
+  timestamp: number;
+  isFavorite: boolean;
+  usageCount: number;
+}
+
+export interface HistoryFilter {
+  search?: string;
+  sourceLang?: string;
+  targetLang?: string;
+  onlyFavorites?: boolean;
+  startDate?: number;
+  endDate?: number;
+}
+
+export interface HistoryConfig {
+  maxEntries: number;
+  enableEncryption: boolean;
+}

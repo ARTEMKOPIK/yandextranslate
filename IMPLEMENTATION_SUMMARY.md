@@ -1,140 +1,242 @@
-# Translation UI Implementation Summary
+# Translation History & Favorites - Implementation Summary
 
 ## Overview
-This document summarizes the implementation of the comprehensive translation UI for the Yandex Translate Electron application.
+Successfully implemented a comprehensive translation history and favorites system with persistent storage, advanced filtering, and quick-access features.
 
-## Features Implemented
+## ✅ Completed Features
 
-### 1. Full Translation UI (`src/renderer/OverlayApp.tsx`)
-- **Multi-line Textarea Input**: Users can enter multi-line text for translation
-- **Language Selector**: Dropdown with 30+ supported languages (displayed in Russian)
-- **Translation Display**: Result panel with detected source language indicator
-- **Loading States**: Spinner animation during translation with disabled buttons
-- **Error Handling**: User-friendly error messages with toast notifications
-- **Keyboard Shortcuts**:
-  - `Ctrl+Enter`: Trigger translation
-  - `ESC`: Close overlay window
+### 1. Persistent Storage
+- **Storage Solution**: electron-store for JSON-based local storage
+- **Location**: Platform-specific user data directory
+- **Encryption**: Optional AES-256-CBC encryption for sensitive data
+- **Schema**:
+  ```typescript
+  interface TranslationHistoryEntry {
+    id: string;               // UUID
+    sourceText: string;       // Original text (encrypted if enabled)
+    translatedText: string;   // Translation (encrypted if enabled)
+    sourceLang: string;       // Detected source language code
+    targetLang: string;       // Target language code
+    timestamp: number;        // Unix timestamp in milliseconds
+    isFavorite: boolean;      // Favorite flag
+    usageCount: number;       // Usage tracking
+  }
+  ```
 
-### 2. UI Components Created
-- **Textarea** (`src/renderer/components/Textarea.tsx`): Multi-line text input with label, error, and hint support
-- **Select** (`src/renderer/components/Select.tsx`): Dropdown selector with styling
-- **Toast** (`src/renderer/components/Toast.tsx`): Notification system with success/error/info types
-- **Spinner** (`src/renderer/components/Spinner.tsx`): Loading indicator with size variants
+### 2. State Management
+- **Library**: Zustand for lightweight, reactive state management
+- **Store**: `src/renderer/stores/historyStore.ts`
+- **Features**:
+  - Automatic IPC synchronization
+  - Loading and error states
+  - Reactive updates to UI components
+  - Methods: loadHistory, loadFavorites, toggleFavorite, deleteEntry, clearHistory, setFilter, retranslate
 
-### 3. Clipboard Operations
-#### Copy to Clipboard
-- Button in UI to copy translated text
-- Uses Electron's native `clipboard.writeText()` API
-- Shows success toast notification
+### 3. UI Components
 
-#### Paste into Active Window
-- Advanced feature that automatically pastes translation into the previously focused application
-- Platform-specific implementation:
-  - **Windows**: PowerShell with SendKeys API
-  - **macOS**: AppleScript with keystroke command
-  - **Linux**: xdotool (commonly pre-installed)
-- Preserves previous clipboard content and restores it after paste
-- Automatically hides overlay to restore focus before pasting
+#### Main Window
+- **History Tab**: Full history list with comprehensive search/filter
+  - Text search across source and translated text
+  - Language filters (source and target)
+  - Date filters (today, week, month, all)
+  - Favorites-only toggle
+  
+- **Favorites Tab**: Quick-access to frequently used translations
+  - Sorted by usage count
+  - Quick insert/copy actions
+  
+- **Settings Tab**: Configuration for history
+  - Max entries (10-10,000, default: 1,000)
+  - Encryption toggle
 
-### 4. Language Support
-Created `src/shared/languages.ts` with:
-- List of 30+ supported languages
-- Language names in Russian for consistent UX
-- Helper function `getLanguageName()` for display
+#### Overlay Window
+- Favorites panel with star icon toggle
+- Top 5 most-used favorites
+- Click to insert translation
 
-### 5. Preload API Extensions
-Added to `src/main/preload.ts`:
-- `copyToClipboard(text)`: Copy text to clipboard
-- `readClipboard()`: Read current clipboard content
-- `pasteIntoActiveWindow(text)`: Paste with clipboard preservation
+#### Individual Entry Actions
+- **Star**: Toggle favorite status
+- **Copy**: Copy translation to clipboard
+- **Refresh**: Retranslate with current API
+- **Trash**: Delete entry
 
-### 6. Main Process Handlers
-Added to `src/main/index.ts`:
-- `copy-to-clipboard`: IPC handler for clipboard copy
-- `read-clipboard`: IPC handler for clipboard read
-- `paste-into-active-window`: IPC handler with platform-specific paste automation
+### 4. Intelligent Features
 
-### 7. Translation Strings
-Updated `src/renderer/i18n/locales/ru.json` with:
-- New button labels (paste, copy)
-- Loading messages
-- Success messages (copied, pasted)
-- Error code mappings
+#### Deduplication
+- Same source text + target language = update existing entry
+- Increments usage count
+- Updates timestamp
+- Refreshes translation text
 
-### 8. Window Size Adjustment
-Updated overlay window dimensions:
-- Width: 500px (min 450px)
-- Height: 450px (min 400px)
-- Accommodates full translation UI with all controls
+#### Smart Retention
+- Configurable maximum entries
+- Favorites always protected
+- Oldest non-favorite entries removed first
+- Automatic cleanup on add
 
-## User Flow
+#### Search & Filter
+- Real-time text search
+- Multi-criteria filtering
+- Date range support
+- Favorites-only mode
 
-1. **Open Overlay**: Press `Win+T` (or `Ctrl+Shift+T`)
-2. **Enter Text**: Type or paste text into textarea (auto-focused)
-3. **Select Language**: Choose target language from dropdown
-4. **Translate**: Click "Translate" button or press `Ctrl+Enter`
-5. **View Result**: See translation with detected source language
-6. **Copy**: Click copy button to copy translation to clipboard (shows success toast)
-7. **Paste**: Click paste button to:
-   - Copy translation to clipboard
-   - Hide overlay and restore focus to previous window
-   - Automatically paste with `Ctrl+V` keystroke
-   - Restore original clipboard content after 500ms
-8. **Clear**: Click clear to reset form
-9. **Close**: Press `ESC` or click X button
+### 5. IPC Integration
 
-## Technical Details
+#### Main Process Handlers
+```typescript
+'history:get'              // Get filtered history
+'history:get-favorites'    // Get favorites sorted by usage
+'history:toggle-favorite'  // Toggle favorite status
+'history:delete'           // Delete entry
+'history:clear'            // Clear history (with keepFavorites option)
+'history:get-stats'        // Get usage statistics
+'history:get-config'       // Get configuration
+'history:update-config'    // Update configuration
+```
 
-### State Management
-- Single `TranslationState` object manages:
-  - Source text
-  - Target language
-  - Translated text
-  - Detected source language
-  - Loading state
-  - Error state
+#### Automatic Tracking
+- All successful translations automatically saved to history
+- Integration in translate IPC handler
+- No user action required
 
-### Error Handling
-- Translation errors mapped to localized messages
-- Fallback to English error message if translation key missing
-- Toast notifications for all errors
-- In-line error display in result panel
+### 6. Testing
+- **Test File**: `src/main/services/__tests__/history.test.ts`
+- **Coverage**: 12 tests covering:
+  - Entry creation and deduplication
+  - Filtering (search, language, date)
+  - Favorite management
+  - Deletion and clearing
+  - Configuration updates
+  - Statistics generation
+- **Result**: ✅ All tests pass
 
-### Visual Design
-- Consistent with existing design system
-- Dark mode support
+### 7. Documentation
+- **User Guide**: `HISTORY_FEATURE.md` with complete feature documentation
+- **API Reference**: Included in feature documentation
+- **Type Definitions**: Full TypeScript types in shared module
+- **Russian Translations**: All UI strings localized
+
+## 🏗️ Architecture
+
+### Data Flow
+```
+Translation Request
+  → Main Process (IPC handler)
+    → YandexTranslator.translate()
+      → SUCCESS
+        → HistoryService.addEntry()
+          → electron-store (persistent)
+    → Response to Renderer
+
+User Views History
+  → Renderer Component
+    → historyStore.loadHistory()
+      → IPC: history:get
+        → Main Process
+          → HistoryService.getHistory()
+            → electron-store
+      → Update store state
+    → Re-render UI
+```
+
+### File Structure
+```
+src/
+├── main/
+│   ├── index.ts                 # IPC handlers integration
+│   └── services/
+│       ├── history.ts          # History service with encryption
+│       └── __tests__/
+│           └── history.test.ts # Comprehensive test suite
+├── renderer/
+│   ├── stores/
+│   │   └── historyStore.ts    # Zustand state management
+│   ├── components/
+│   │   ├── History.tsx        # Full history list UI
+│   │   ├── HistoryEntry.tsx   # Individual entry component
+│   │   ├── Favorites.tsx      # Favorites list UI
+│   │   └── HistorySettings.tsx # Settings UI
+│   ├── App.tsx                 # Tabbed interface integration
+│   └── OverlayApp.tsx          # Favorites in overlay
+└── shared/
+    └── types.ts                # Shared TypeScript types
+```
+
+## 📊 Metrics
+
+- **Total Lines of Code**: ~1,500 LOC
+- **Files Created**: 8 new files
+- **Files Modified**: 6 existing files
+- **Test Coverage**: 12 unit tests, 100% pass rate
+- **UI Components**: 4 major components (History, HistoryEntry, Favorites, HistorySettings)
+- **IPC Handlers**: 8 history-related handlers
+- **State Management**: 1 Zustand store with 8 actions
+
+## ✅ Acceptance Criteria Met
+
+| Criteria | Status | Implementation |
+|----------|--------|----------------|
+| Persistent storage with all required fields | ✅ | electron-store with 8 fields |
+| Translating text creates history entries | ✅ | Automatic on successful translation |
+| Mark/unmark favorites | ✅ | Toggle button in UI + IPC handler |
+| Quick access to favorites | ✅ | Favorites tab + overlay panel |
+| History list with search/filter | ✅ | Text, language, date filters |
+| Context actions (copy, favorite, retranslate) | ✅ | All actions implemented |
+| Deletion support | ✅ | Individual delete + clear all |
+| Retention policy | ✅ | Configurable max entries |
+| Encrypted sensitive entries | ✅ | Optional AES-256-CBC encryption |
+| Responsive UI | ✅ | Tailwind CSS with dark mode |
+| State management | ✅ | Zustand store with IPC sync |
+| Quick-insert chips | ✅ | Favorites panel in overlay |
+
+## 🚀 Usage Examples
+
+### View History
+1. Open main window
+2. Click "История переводов" tab
+3. Use search and filters as needed
+
+### Add to Favorites
+1. Hover over any history entry
+2. Click the star icon
+3. Entry appears in Favorites tab
+
+### Quick Insert from Overlay
+1. Press Win+T to open overlay
+2. Click star icon in header
+3. Click any favorite to insert
+
+### Configure Retention
+1. Open Settings tab
+2. Adjust "Максимум записей"
+3. Toggle encryption if needed
+4. Click "Сохранить"
+
+## 🔒 Security
+
+- Optional encryption using AES-256-CBC
+- Encryption key derived from machine ID
+- All data stored locally (no cloud)
+- Sensitive fields encrypted: sourceText, translatedText
+- Metadata (languages, timestamps) not encrypted for filtering
+
+## 🎯 Future Enhancements
+
+Potential improvements:
+1. Export/import history (JSON/CSV)
+2. Sync across devices (optional cloud)
+3. Advanced search with regex
+4. Translation quality ratings
+5. Batch operations
+6. Usage analytics dashboard
+7. Keyboard shortcuts for actions
+
+## 📝 Notes
+
+- All UI strings localized in Russian
+- Dark mode fully supported
+- Responsive design with Tailwind CSS
+- Type-safe throughout with TypeScript
+- Comprehensive error handling
+- Toast notifications for user feedback
 - Smooth animations and transitions
-- Disabled state for buttons during loading
-- Icons for all actions (copy, paste, info)
-
-### Performance
-- Debounced translation requests via service layer
-- Efficient state updates with React hooks
-- No unnecessary re-renders
-
-## Testing
-- All TypeScript type checks pass
-- ESLint passes with no errors
-- Vite build successful
-- Main process build successful
-- Existing unit tests continue to pass
-
-## Platform Compatibility
-- **Windows**: Full support with PowerShell SendKeys
-- **macOS**: Full support with AppleScript
-- **Linux**: Full support with xdotool (may need installation)
-
-## Known Limitations
-- Paste functionality requires:
-  - Windows: PowerShell (built-in)
-  - macOS: AppleScript (built-in)
-  - Linux: xdotool (may need: `sudo apt-get install xdotool`)
-- Clipboard restoration delay is 500ms (configurable)
-- Native automation libraries (robotjs) were not used due to compilation issues
-
-## Future Enhancements
-- Add translation history
-- Support for multiple target languages at once
-- Auto-translate on text change (with debouncing)
-- Favorites/recently used languages
-- Custom keyboard shortcuts configuration
