@@ -45,6 +45,11 @@ export const api = {
   translate: (text: string, targetLang: string, sourceLang?: string) =>
     ipcRenderer.invoke('translate', text, targetLang, sourceLang),
   validateApiKey: () => ipcRenderer.invoke('validate-api-key'),
+
+  // Clipboard operations
+  copyToClipboard: (text: string) => ipcRenderer.invoke('copy-to-clipboard', text),
+  readClipboard: () => ipcRenderer.invoke('read-clipboard'),
+  pasteIntoActiveWindow: (text: string) => ipcRenderer.invoke('paste-into-active-window', text),
 };
 
 contextBridge.exposeInMainWorld('api', api);
