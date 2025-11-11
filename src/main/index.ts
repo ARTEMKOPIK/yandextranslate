@@ -1,4 +1,16 @@
-import { app, BrowserWindow, Menu, ipcMain, globalShortcut, screen, clipboard } from 'electron';
+import {
+  app,
+  BrowserWindow,
+  Menu,
+  ipcMain,
+  globalShortcut,
+  screen,
+  clipboard,
+  Tray,
+  nativeImage,
+  nativeTheme,
+  Notification,
+} from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { exec } from 'child_process';
@@ -15,9 +27,11 @@ const __dirname = path.dirname(__filename);
 
 let mainWindow: BrowserWindow | null;
 let overlayWindow: BrowserWindow | null;
+let tray: Tray | null = null;
 let translationService: TranslationService | null = null;
 let historyService: HistoryService | null = null;
 let settingsService: SettingsService | null = null;
+let isQuitting = false;
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -51,11 +65,15 @@ function initializeTranslationService() {
 }
 
 function createWindow() {
+  const settings = settingsService?.getSettings();
+  const shouldStartMinimized = settings?.general.startMinimizedToTray || false;
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     minWidth: 800,
     minHeight: 600,
+    show: !shouldStartMinimized,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -69,15 +87,32 @@ function createWindow() {
 
   mainWindow.loadURL(startUrl);
 
-  if (isDev) {
+  if (isDev && !shouldStartMinimized) {
     mainWindow.webContents.openDevTools();
   }
+
+  // Handle close event for close-to-tray behavior
+  mainWindow.on('close', (event) => {
+    const settings = settingsService?.getSettings();
+    if (!isQuitting && settings?.general.closeToTray) {
+      event.preventDefault();
+      mainWindow?.hide();
+      return;
+    }
+  });
 
   mainWindow.on('closed', () => {
     mainWindow = null;
   });
 
   createMenu();
+
+  // Show window after ready if not starting minimized
+  if (!shouldStartMinimized) {
+    mainWindow.once('ready-to-show', () => {
+      mainWindow?.show();
+    });
+  }
 }
 
 function createOverlayWindow() {
@@ -269,6 +304,196 @@ function createMenu() {
   Menu.setApplicationMenu(menu);
 }
 
+function getTrayIcon(): string {
+  const iconName = nativeTheme.shouldUseDarkColors ? 'tray-dark' : 'tray-light';
+  const iconPath = path.join(__dirname, '../../assets/icons', `${iconName}.png`);
+  return iconPath;
+}
+
+function createTray() {
+  if (tray) {
+    return;
+  }
+
+  const iconPath = getTrayIcon();
+  const icon = nativeImage.createFromPath(iconPath);
+  tray = new Tray(icon);
+
+  updateTrayMenu();
+
+  tray.setToolTip('Яндекс Переводчик - QuickTranslate');
+
+  // Handle double-click to show/hide main window
+  tray.on('double-click', () => {
+    toggleMainWindow();
+  });
+
+  // Update tray icon when system theme changes
+  nativeTheme.on('updated', () => {
+    if (tray) {
+      const newIconPath = getTrayIcon();
+      const newIcon = nativeImage.createFromPath(newIconPath);
+      tray.setImage(newIcon);
+    }
+  });
+}
+
+function updateTrayMenu() {
+  if (!tray) {
+    return;
+  }
+
+  const settings = settingsService?.getSettings();
+  const currentTheme = settings?.theme.mode || 'dark';
+
+  const contextMenu = Menu.buildFromTemplate([
+    {
+      label: 'Показать/Скрыть QuickTranslate',
+      click: () => {
+        toggleOverlayWindow();
+      },
+    },
+    { type: 'separator' },
+    {
+      label: 'Переключить тему',
+      submenu: [
+        {
+          label: 'Светлая',
+          type: 'radio',
+          checked: currentTheme === 'light',
+          click: () => {
+            toggleTheme('light');
+          },
+        },
+        {
+          label: 'Темная',
+          type: 'radio',
+          checked: currentTheme === 'dark',
+          click: () => {
+            toggleTheme('dark');
+          },
+        },
+        {
+          label: 'Системная',
+          type: 'radio',
+          checked: currentTheme === 'system',
+          click: () => {
+            toggleTheme('system');
+          },
+        },
+      ],
+    },
+    { type: 'separator' },
+    {
+      label: 'Показать главное окно',
+      click: () => {
+        showMainWindow();
+      },
+    },
+    {
+      label: 'Настройки',
+      click: () => {
+        showMainWindow();
+        // Navigate to settings tab in main window
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.webContents.send('navigate-to-settings');
+        }
+      },
+    },
+    { type: 'separator' },
+    {
+      label: 'Проверить обновления',
+      click: () => {
+        checkForUpdates();
+      },
+    },
+    { type: 'separator' },
+    {
+      label: 'Выход',
+      click: () => {
+        isQuitting = true;
+        app.quit();
+      },
+    },
+  ]);
+
+  tray.setContextMenu(contextMenu);
+}
+
+function toggleMainWindow() {
+  if (!mainWindow) {
+    showMainWindow();
+    return;
+  }
+
+  if (mainWindow.isVisible()) {
+    mainWindow.hide();
+  } else {
+    showMainWindow();
+  }
+}
+
+function showMainWindow() {
+  if (!mainWindow) {
+    createWindow();
+    return;
+  }
+
+  if (mainWindow.isMinimized()) {
+    mainWindow.restore();
+  }
+
+  mainWindow.show();
+  mainWindow.focus();
+}
+
+function toggleTheme(theme: 'light' | 'dark' | 'system') {
+  if (!settingsService) {
+    return;
+  }
+
+  const settings = settingsService.updateSettings({
+    theme: { mode: theme },
+  });
+
+  // Notify all windows of theme change
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('settings-changed', settings);
+  }
+  if (overlayWindow && !overlayWindow.isDestroyed()) {
+    overlayWindow.webContents.send('settings-changed', settings);
+  }
+
+  // Update tray menu to reflect new theme
+  updateTrayMenu();
+}
+
+function checkForUpdates() {
+  // Placeholder for update checking functionality
+  if (Notification.isSupported()) {
+    const notification = new Notification({
+      title: 'Проверка обновлений',
+      body: 'Вы используете последнюю версию приложения',
+    });
+    notification.show();
+  }
+}
+
+function showTrayNotification(title: string, body: string) {
+  const settings = settingsService?.getSettings();
+  if (!settings?.tray.showNotifications) {
+    return;
+  }
+
+  if (Notification.isSupported()) {
+    const notification = new Notification({
+      title,
+      body,
+    });
+    notification.show();
+  }
+}
+
 app.on('ready', () => {
   // Initialize services
   settingsService = new SettingsService();
@@ -281,12 +506,16 @@ app.on('ready', () => {
     PRIMARY_HOTKEY = settings.hotkeys.overlay;
   }
 
+  // Create tray icon
+  createTray();
+
   createWindow();
   registerGlobalShortcuts();
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+  // Don't quit if we have tray - app continues to run in background
+  if (process.platform !== 'darwin' && !tray) {
     app.quit();
   }
 });
@@ -302,8 +531,13 @@ app.on('will-quit', () => {
 });
 
 app.on('before-quit', () => {
+  isQuitting = true;
   if (overlayWindow && !overlayWindow.isDestroyed()) {
     saveOverlayPosition();
+  }
+  if (tray) {
+    tray.destroy();
+    tray = null;
   }
 });
 
@@ -387,12 +621,23 @@ ipcMain.handle('translate', async (_, text: string, targetLang: string, sourceLa
       );
     }
 
+    // Show translation complete notification if enabled
+    const settings = settingsService?.getSettings();
+    if (settings?.tray.showTranslationComplete) {
+      const shortText = text.length > 50 ? text.substring(0, 47) + '...' : text;
+      showTrayNotification('Перевод завершен', `"${shortText}"`);
+    }
+
     return {
       success: true,
       data: result,
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Translation failed';
+
+    // Show error notification
+    showTrayNotification('Ошибка перевода', message);
+
     return {
       success: false,
       error: {
@@ -558,6 +803,11 @@ ipcMain.handle('settings:update', (_, updates) => {
   // Sync history max entries with history service
   if (updates.general?.historyMaxEntries && historyService) {
     historyService.updateConfig({ maxEntries: updates.general.historyMaxEntries });
+  }
+
+  // Update tray menu if theme changed
+  if (updates.theme?.mode) {
+    updateTrayMenu();
   }
 
   // Notify all windows of settings change

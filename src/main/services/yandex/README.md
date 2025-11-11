@@ -29,6 +29,7 @@ This module provides integration with Yandex.Translate REST API with automatic l
 ### Setup
 
 1. Create a `.env` file in the project root:
+
 ```env
 YANDEX_API_KEY=your_api_key_here
 ```
@@ -86,6 +87,7 @@ Unit tests are provided in `__tests__/` directory:
 - `translator.test.ts` - Tests for translation service (queue, retry, detection)
 
 Run tests:
+
 ```bash
 npm test
 ```
@@ -93,6 +95,7 @@ npm test
 ## API Endpoints
 
 ### Translate
+
 - **Endpoint**: `POST /translate/v2/translate`
 - **Request**:
   ```json
@@ -105,14 +108,17 @@ npm test
 - **Response**:
   ```json
   {
-    "translations": [{
-      "text": "translated text",
-      "detectedLanguageCode": "en"
-    }]
+    "translations": [
+      {
+        "text": "translated text",
+        "detectedLanguageCode": "en"
+      }
+    ]
   }
   ```
 
 ### Detect Language
+
 - **Endpoint**: `POST /translate/v2/detect`
 - **Request**:
   ```json

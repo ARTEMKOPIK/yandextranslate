@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { AppSettings, HotkeyValidation } from '../../shared/types';
+import { AppSettings, HotkeyValidation, DeepPartial } from '../../shared/types';
 
 interface SettingsState {
   settings: AppSettings | null;
@@ -7,7 +7,7 @@ interface SettingsState {
   error: string | null;
 
   loadSettings: () => Promise<void>;
-  updateSettings: (updates: Partial<AppSettings>) => Promise<void>;
+  updateSettings: (updates: DeepPartial<AppSettings>) => Promise<void>;
   resetSettings: () => Promise<void>;
   validateHotkey: (hotkey: string) => Promise<HotkeyValidation>;
 }
@@ -30,7 +30,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
     }
   },
 
-  updateSettings: async (updates: Partial<AppSettings>) => {
+  updateSettings: async (updates: DeepPartial<AppSettings>) => {
     set({ isLoading: true, error: null });
     try {
       const settings = await window.api.settings.update(updates);

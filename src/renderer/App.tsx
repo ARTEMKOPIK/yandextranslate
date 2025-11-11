@@ -34,6 +34,22 @@ function App() {
     });
   }, [showToastFn]);
 
+  useEffect(() => {
+    // Listen for navigate-to-settings IPC event from tray menu
+    const unsubscribeSettings = window.api.onSettingsChanged(() => {
+      // This is triggered when settings change, we can use it to sync
+    });
+
+    const unsubscribeNavigate = window.api.onNavigateToSettings(() => {
+      setActiveTab('settings');
+    });
+
+    return () => {
+      unsubscribeSettings();
+      unsubscribeNavigate();
+    };
+  }, []);
+
   const handleTranslate = () => {
     setCount((prev) => prev + 1);
   };

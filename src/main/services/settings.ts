@@ -1,9 +1,11 @@
 import Store from 'electron-store';
-import { AppSettings, HotkeyValidation } from '../../shared/types.js';
+import { AppSettings, HotkeyValidation, DeepPartial } from '../../shared/types.js';
 
 const DEFAULT_SETTINGS: AppSettings = {
   general: {
     historyMaxEntries: 1000,
+    startMinimizedToTray: false,
+    closeToTray: true,
   },
   hotkeys: {
     overlay: 'Super+T',
@@ -13,6 +15,10 @@ const DEFAULT_SETTINGS: AppSettings = {
   },
   theme: {
     mode: 'dark',
+  },
+  tray: {
+    showNotifications: true,
+    showTranslationComplete: false,
   },
 };
 
@@ -36,13 +42,14 @@ export class SettingsService {
     return this.store.get('settings', DEFAULT_SETTINGS);
   }
 
-  updateSettings(updates: Partial<AppSettings>): AppSettings {
+  updateSettings(updates: DeepPartial<AppSettings>): AppSettings {
     const current = this.getSettings();
     const updated: AppSettings = {
       general: { ...current.general, ...(updates.general || {}) },
       hotkeys: { ...current.hotkeys, ...(updates.hotkeys || {}) },
       interface: { ...current.interface, ...(updates.interface || {}) },
       theme: { ...current.theme, ...(updates.theme || {}) },
+      tray: { ...current.tray, ...(updates.tray || {}) },
     };
     this.store.set('settings', updated);
     return updated;
