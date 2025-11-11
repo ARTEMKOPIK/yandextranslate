@@ -1,4 +1,15 @@
-import type { HotkeyStatus } from '../shared/types';
+import type { HotkeyStatus, TranslationResponse, TranslationError } from '../shared/types';
+
+export interface TranslateResult {
+  success: boolean;
+  data?: TranslationResponse;
+  error?: TranslationError;
+}
+
+export interface ApiKeyValidation {
+  valid: boolean;
+  error?: string;
+}
 
 export interface ElectronAPI {
   getVersion: () => Promise<{ version: string }>;
@@ -18,6 +29,10 @@ export interface ElectronAPI {
 
   // Reload shortcuts
   reloadShortcuts: () => void;
+
+  // Translation API
+  translate: (text: string, targetLang: string, sourceLang?: string) => Promise<TranslateResult>;
+  validateApiKey: () => Promise<ApiKeyValidation>;
 }
 
 declare global {

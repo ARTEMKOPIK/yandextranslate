@@ -40,6 +40,11 @@ export const api = {
 
   // Reload shortcuts
   reloadShortcuts: () => ipcRenderer.send('reload-shortcuts'),
+
+  // Translation API
+  translate: (text: string, targetLang: string, sourceLang?: string) =>
+    ipcRenderer.invoke('translate', text, targetLang, sourceLang),
+  validateApiKey: () => ipcRenderer.invoke('validate-api-key'),
 };
 
 contextBridge.exposeInMainWorld('api', api);
