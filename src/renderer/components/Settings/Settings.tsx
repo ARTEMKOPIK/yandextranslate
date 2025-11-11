@@ -8,10 +8,19 @@ import { ThemeSettings } from './ThemeSettings';
 import { TraySettings } from './TraySettings';
 import { LogsSettings } from './LogsSettings';
 import { AnalyticsSettings } from './AnalyticsSettings';
+import { UpdatesSettings } from './UpdatesSettings';
 import { useSettingsStore } from '../../stores/settingsStore';
 import { showToast } from '../Toast';
 
-type SettingsTab = 'general' | 'hotkeys' | 'interface' | 'theme' | 'tray' | 'logs' | 'analytics';
+type SettingsTab =
+  | 'general'
+  | 'hotkeys'
+  | 'interface'
+  | 'theme'
+  | 'tray'
+  | 'updates'
+  | 'logs'
+  | 'analytics';
 
 export function Settings() {
   const { t } = useTranslation();
@@ -42,6 +51,7 @@ export function Settings() {
     { id: 'interface', label: t('settings.interface.title') },
     { id: 'theme', label: t('settings.theme.title') },
     { id: 'tray', label: t('settings.tray.title') },
+    { id: 'updates', label: t('settings.updates.title') },
     { id: 'logs', label: t('settings.logs.title') },
     { id: 'analytics', label: t('settings.analytics.title') },
   ];
@@ -91,6 +101,7 @@ export function Settings() {
             {activeTab === 'interface' && <InterfaceSettings />}
             {activeTab === 'theme' && <ThemeSettings />}
             {activeTab === 'tray' && <TraySettings />}
+            {activeTab === 'updates' && <UpdatesSettings />}
             {activeTab === 'logs' && <LogsSettings />}
             {activeTab === 'analytics' && <AnalyticsSettings />}
           </Card>

@@ -20,6 +20,7 @@ A modern Electron + React + TypeScript application for translation using Yandex 
 - **Logging System**: Structured logging with automatic rotation and retention
 - **Usage Analytics**: Anonymous local-only metrics tracking
 - **Error Boundary**: Graceful UI error handling with recovery options
+- **Auto-Updates**: Seamless automatic updates with progress tracking and version skipping
 
 ## 📋 Tech Stack
 
@@ -417,6 +418,33 @@ Navigate to **Settings → Analytics** to:
 - **User Control**: View, export, and delete all data at any time
 
 For detailed technical documentation, see `docs/LOGGING_AND_ANALYTICS.md`.
+
+## 🔄 Auto-Updates
+
+The application supports automatic updates through GitHub Releases:
+
+- **Automatic Checks**: Updates are checked on startup (production builds only)
+- **Manual Checks**: Check for updates from Settings → Updates or the tray menu
+- **Download Progress**: Real-time download progress with size and speed indicators
+- **Version Skipping**: Skip specific versions you don't want to install
+- **Differential Updates**: Windows NSIS installer downloads only changed files
+- **Code Signing**: Full support for signed releases (Windows & macOS)
+
+### Update Configuration
+
+Users can configure update behavior in **Settings → Updates**:
+- **Auto-download**: Automatically download updates in the background
+- **Allow prerelease**: Receive beta/prerelease versions
+- **Skip versions**: Manage skipped version list
+
+### For Developers
+
+See `docs/AUTO_UPDATES.md` for comprehensive documentation including:
+- Update architecture and flow
+- Publishing releases to GitHub
+- Code signing setup (Windows & macOS)
+- Testing updates locally
+- Troubleshooting common issues
 
 ### Error Boundary
 

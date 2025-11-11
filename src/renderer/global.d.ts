@@ -9,6 +9,10 @@ import type {
   HotkeyValidation,
   DeepPartial,
   AnalyticsStats,
+  UpdateInfo,
+  UpdateProgress,
+  UpdateStatus,
+  UpdateConfig,
 } from '../shared/types';
 
 export interface TranslateResult {
@@ -92,6 +96,33 @@ export interface ElectronAPI {
   getAnalyticsStats: () => Promise<{ success: boolean; data?: AnalyticsStats; error?: string }>;
   resetAnalytics: () => Promise<{ success: boolean; data?: AnalyticsStats; error?: string }>;
   exportAnalytics: () => Promise<{ success: boolean; data?: string; error?: string }>;
+
+  // Update operations
+  updater: {
+    checkForUpdates: (silent?: boolean) => Promise<{
+      success: boolean;
+      updateAvailable?: boolean;
+      version?: string;
+      error?: string;
+    }>;
+    downloadUpdate: () => Promise<{ success: boolean; error?: string }>;
+    quitAndInstall: () => void;
+    skipVersion: (version: string) => void;
+    clearSkippedVersions: () => void;
+    getSkippedVersions: () => Promise<Array<{ version: string; skippedAt: number }>>;
+    updateConfig: (config: Partial<UpdateConfig>) => Promise<void>;
+    getConfig: () => Promise<UpdateConfig>;
+    getStatus: () => Promise<UpdateStatus>;
+  };
+
+  // Update events
+  onUpdateChecking: (callback: () => void) => () => void;
+  onUpdateAvailable: (callback: (info: UpdateInfo) => void) => () => void;
+  onUpdateNotAvailable: (callback: (info: { version: string }) => void) => () => void;
+  onUpdateDownloadProgress: (callback: (progress: UpdateProgress) => void) => () => void;
+  onUpdateDownloaded: (callback: (info: { version: string }) => void) => () => void;
+  onUpdateError: (callback: (error: { message: string }) => void) => () => void;
+  onUpdateSkipped: (callback: (info: { version: string }) => void) => () => void;
 }
 
 declare global {

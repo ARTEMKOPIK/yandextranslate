@@ -21,6 +21,7 @@ import { HistoryService } from './services/history.js';
 import { SettingsService } from './services/settings.js';
 import { logger } from './services/logger.js';
 import { analytics } from './services/analytics.js';
+import { updater } from './services/updater.js';
 import { shell } from 'electron';
 
 const execAsync = promisify(exec);
@@ -474,14 +475,17 @@ function toggleTheme(theme: 'light' | 'dark' | 'system') {
   updateTrayMenu();
 }
 
-function checkForUpdates() {
-  // Placeholder for update checking functionality
-  if (Notification.isSupported()) {
-    const notification = new Notification({
-      title: 'Проверка обновлений',
-      body: 'Вы используете последнюю версию приложения',
-    });
-    notification.show();
+async function checkForUpdates() {
+  try {
+    logger.info('Checking for updates from tray menu', 'Updates');
+    const result = await updater.checkForUpdates(false);
+
+    if (result.success && !result.updateAvailable) {
+      showTrayNotification('Проверка обновлений', 'Вы используете последнюю версию приложения');
+    }
+  } catch (error) {
+    logger.error('Failed to check for updates', 'Updates', error);
+    showTrayNotification('Ошибка обновления', 'Не удалось проверить наличие обновлений');
   }
 }
 
@@ -517,6 +521,20 @@ app.on('ready', () => {
 
   createWindow();
   registerGlobalShortcuts();
+
+  // Register windows with updater and check for updates after a delay
+  if (mainWindow) {
+    updater.registerWindow(mainWindow);
+  }
+
+  // Check for updates on startup (after 5 seconds to not block initial load)
+  if (!isDev) {
+    setTimeout(() => {
+      updater.checkForUpdates(true).catch((error) => {
+        logger.error('Failed to check for updates on startup', 'Updates', error);
+      });
+    }, 5000);
+  }
 });
 
 app.on('window-all-closed', () => {
@@ -955,4 +973,55 @@ ipcMain.handle('analytics:export', async () => {
     logger.error('Failed to export analytics', 'IPC', error);
     return { success: false, error: message };
   }
+});
+
+// Updater IPC handlers
+ipcMain.handle('updater:check', async (_, silent = false) => {
+  try {
+    const result = await updater.checkForUpdates(silent);
+    return result;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to check for updates';
+    logger.error('Failed to check for updates', 'IPC', error);
+    return { success: false, error: message };
+  }
+});
+
+ipcMain.handle('updater:download', async () => {
+  try {
+    const result = await updater.downloadUpdate();
+    return result;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'Failed to download update';
+    logger.error('Failed to download update', 'IPC', error);
+    return { success: false, error: message };
+  }
+});
+
+ipcMain.on('updater:quit-and-install', () => {
+  updater.quitAndInstall();
+});
+
+ipcMain.on('updater:skip-version', (_, version: string) => {
+  updater.skipVersion(version);
+});
+
+ipcMain.on('updater:clear-skipped-versions', () => {
+  updater.clearSkippedVersions();
+});
+
+ipcMain.handle('updater:get-skipped-versions', async () => {
+  return updater.getSkippedVersions();
+});
+
+ipcMain.handle('updater:update-config', async (_, config) => {
+  updater.updateConfig(config);
+});
+
+ipcMain.handle('updater:get-config', async () => {
+  return updater.getConfig();
+});
+
+ipcMain.handle('updater:get-status', async () => {
+  return updater.getStatus();
 });

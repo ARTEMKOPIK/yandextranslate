@@ -33,6 +33,7 @@
     "dotenv": "^17.2.3",
     "electron-log": "^5.4.3",
     "electron-store": "^11.0.2",
+    "electron-updater": "^6.6.2",
     "i18next": "^25.6.2",
     "postcss": "^8.5.6",
     "react": "^18.2.0",
@@ -76,20 +77,40 @@
     },
     "win": {
       "target": [
-        "nsis",
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
         "portable"
-      ]
+      ],
+      "publisherName": "Yandex Translate",
+      "signingHashAlgorithms": [
+        "sha256"
+      ],
+      "signDlls": true
     },
     "nsis": {
       "oneClick": false,
-      "allowToChangeInstallationDirectory": true
+      "allowToChangeInstallationDirectory": true,
+      "allowElevation": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "differentialPackage": true
     },
     "mac": {
       "target": [
         "dmg",
         "zip"
       ],
-      "category": "public.app-category.utilities"
+      "category": "public.app-category.utilities",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
     },
     "linux": {
       "target": [
@@ -97,6 +118,13 @@
         "deb"
       ],
       "category": "Utility"
-    }
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "your-github-username",
+      "repo": "yandextranslate",
+      "releaseType": "release"
+    },
+    "afterSign": "scripts/notarize.js"
   }
 }
