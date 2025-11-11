@@ -33,7 +33,7 @@ let historyService: HistoryService | null = null;
 let settingsService: SettingsService | null = null;
 let isQuitting = false;
 
-const isDev = process.env.NODE_ENV === 'development';
+const VITE_DEV_SERVER_URL = process.env.VITE_DEV_SERVER_URL;
 
 // Overlay window configuration
 const OVERLAY_WIDTH = 500;
@@ -81,13 +81,12 @@ function createWindow() {
     },
   });
 
-  const startUrl = isDev
-    ? 'http://localhost:5173'
-    : `file://${path.join(__dirname, '../renderer/index.html')}`;
+  const startUrl =
+    VITE_DEV_SERVER_URL || `file://${path.join(__dirname, '../renderer/index.html')}`;
 
   mainWindow.loadURL(startUrl);
 
-  if (isDev && !shouldStartMinimized) {
+  if (VITE_DEV_SERVER_URL && !shouldStartMinimized) {
     mainWindow.webContents.openDevTools();
   }
 
@@ -138,8 +137,8 @@ function createOverlayWindow() {
     overlayWindow.setBackgroundColor('#00000000');
   }
 
-  const startUrl = isDev
-    ? 'http://localhost:5173?overlay=true'
+  const startUrl = VITE_DEV_SERVER_URL
+    ? `${VITE_DEV_SERVER_URL}?overlay=true`
     : `file://${path.join(__dirname, '../renderer/index.html')}?overlay=true`;
 
   overlayWindow.loadURL(startUrl);
@@ -524,7 +523,7 @@ app.on('ready', () => {
   }
 
   // Check for updates on startup (after 5 seconds to not block initial load)
-  if (!isDev) {
+  if (!VITE_DEV_SERVER_URL) {
     setTimeout(() => {
       updater.checkForUpdates(true).catch((error) => {
         logger.error('Failed to check for updates on startup', 'Updates', error);
