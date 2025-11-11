@@ -1,8 +1,12 @@
-import { app, BrowserWindow, Menu, ipcMain, globalShortcut, screen } from 'electron';
+import { app, BrowserWindow, Menu, ipcMain, globalShortcut, screen, clipboard } from 'electron';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { exec } from 'child_process';
+import { promisify } from 'util';
 import { getConfig, validateApiKey } from './services/config.js';
 import { TranslationService } from './services/yandex/translator.js';
+
+const execAsync = promisify(exec);
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,10 +18,10 @@ let translationService: TranslationService | null = null;
 const isDev = process.env.NODE_ENV === 'development';
 
 // Overlay window configuration
-const OVERLAY_WIDTH = 400;
-const OVERLAY_HEIGHT = 300;
-const OVERLAY_MIN_WIDTH = 350;
-const OVERLAY_MIN_HEIGHT = 200;
+const OVERLAY_WIDTH = 500;
+const OVERLAY_HEIGHT = 450;
+const OVERLAY_MIN_WIDTH = 450;
+const OVERLAY_MIN_HEIGHT = 400;
 
 // Hotkey configuration
 const PRIMARY_HOTKEY = 'Super+T'; // Win+T on Windows
@@ -380,4 +384,70 @@ ipcMain.handle('validate-api-key', () => {
     valid: validation.valid,
     error: validation.error,
   };
+});
+
+// Clipboard operations
+ipcMain.handle('copy-to-clipboard', (_, text: string) => {
+  try {
+    clipboard.writeText(text);
+    return true;
+  } catch (error) {
+    console.error('Failed to copy to clipboard:', error);
+    return false;
+  }
+});
+
+ipcMain.handle('read-clipboard', () => {
+  try {
+    return clipboard.readText();
+  } catch (error) {
+    console.error('Failed to read clipboard:', error);
+    return '';
+  }
+});
+
+ipcMain.handle('paste-into-active-window', async (_, text: string) => {
+  try {
+    // Save current clipboard content
+    const previousClipboard = clipboard.readText();
+
+    // Copy text to clipboard
+    clipboard.writeText(text);
+
+    // Hide overlay to restore focus
+    if (overlayWindow && overlayWindow.isVisible()) {
+      saveOverlayPosition();
+      overlayWindow.hide();
+      overlayWindow.webContents.send('overlay-hidden');
+    }
+
+    // Wait a bit for focus to restore
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    // Send Ctrl+V keystroke based on platform
+    if (process.platform === 'win32') {
+      // Windows: Use PowerShell to send Ctrl+V
+      await execAsync(
+        `powershell -Command "Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('^v')"`
+      );
+    } else if (process.platform === 'darwin') {
+      // macOS: Use AppleScript
+      await execAsync(
+        `osascript -e 'tell application "System Events" to keystroke "v" using command down'`
+      );
+    } else {
+      // Linux: Use xdotool
+      await execAsync('xdotool key ctrl+v');
+    }
+
+    // Restore previous clipboard content after a delay
+    setTimeout(() => {
+      clipboard.writeText(previousClipboard);
+    }, 500);
+
+    return true;
+  } catch (error) {
+    console.error('Failed to paste into active window:', error);
+    return false;
+  }
 });

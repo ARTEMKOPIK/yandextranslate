@@ -33,6 +33,11 @@ export interface ElectronAPI {
   // Translation API
   translate: (text: string, targetLang: string, sourceLang?: string) => Promise<TranslateResult>;
   validateApiKey: () => Promise<ApiKeyValidation>;
+
+  // Clipboard operations
+  copyToClipboard: (text: string) => Promise<boolean>;
+  readClipboard: () => Promise<string>;
+  pasteIntoActiveWindow: (text: string) => Promise<boolean>;
 }
 
 declare global {
