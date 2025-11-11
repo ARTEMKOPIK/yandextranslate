@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   AppShell,
@@ -12,7 +12,9 @@ import {
   ThemeToggle,
   History,
   Favorites,
-  HistorySettings,
+  Settings,
+  useToast,
+  initGlobalToast,
 } from './components';
 import { useTheme } from './contexts/ThemeContext';
 
@@ -24,6 +26,13 @@ function App() {
   const [count, setCount] = useState(0);
   const [sourceText, setSourceText] = useState('');
   const [activeTab, setActiveTab] = useState<Tab>('demo');
+  const { showToast: showToastFn, ToastContainer } = useToast();
+
+  useEffect(() => {
+    initGlobalToast((message, type) => {
+      showToastFn({ message, type });
+    });
+  }, [showToastFn]);
 
   const handleTranslate = () => {
     setCount((prev) => prev + 1);
@@ -38,151 +47,150 @@ function App() {
     { id: 'demo', label: 'Демо' },
     { id: 'history', label: t('history.title') },
     { id: 'favorites', label: t('favorites.title') },
-    { id: 'settings', label: 'Настройки' },
+    { id: 'settings', label: t('settings.title') },
   ];
 
   return (
-    <AppShell
-      header={
-        <div className="px-6 py-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
-          <H1 className="text-2xl">{t('app.title')}</H1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600 dark:text-gray-400">
-              {theme === 'dark' ? t('theme.dark') : t('theme.light')}
-            </span>
-            <ThemeToggle />
-          </div>
-        </div>
-      }
-      main={
-        <div className="flex h-full">
-          <nav className="w-64 border-r border-gray-200 dark:border-gray-700 p-4">
-            <div className="space-y-1">
-              {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
-                    activeTab === tab.id
-                      ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 font-medium'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+    <>
+      <ToastContainer />
+      <AppShell
+        header={
+          <div className="px-6 py-4 flex items-center justify-between border-b border-gray-200 dark:border-gray-700">
+            <H1 className="text-2xl">{t('app.title')}</H1>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-600 dark:text-gray-400">
+                {theme === 'dark' ? t('theme.dark') : t('theme.light')}
+              </span>
+              <ThemeToggle />
             </div>
-          </nav>
-
-          <div className="flex-1 overflow-auto">
-            {activeTab === 'demo' && (
-              <div className="p-8 max-w-4xl mx-auto w-full">
-                <Card variant="elevated" className="p-6 mb-6">
-                  <H3 className="mb-4">{t('overlay.title')}</H3>
-                  <P className="text-gray-600 dark:text-gray-400 mb-4">
-                    {t('overlay.description')}
-                  </P>
-                  <HotkeyStatus />
-                </Card>
-
-                <Card variant="elevated" className="p-6 mb-6">
-                  <H3 className="mb-6">Демонстрация компонентов</H3>
-
-                  <div className="space-y-6">
-                    <div>
-                      <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        Входные поля
-                      </h4>
-                      <div className="space-y-4">
-                        <Input
-                          label={t('label.source')}
-                          placeholder={t('input.placeholder.source')}
-                          value={sourceText}
-                          onChange={(e) => setSourceText(e.target.value)}
-                        />
-                        <Input
-                          label={t('label.target')}
-                          placeholder={t('input.placeholder.target')}
-                          disabled
-                          value={`Перевод (${count} раз)`}
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        Кнопки
-                      </h4>
-                      <div className="flex flex-wrap gap-4">
-                        <Button variant="primary" onClick={handleTranslate}>
-                          {t('button.translate')}
-                        </Button>
-                        <Button variant="secondary" onClick={handleClear}>
-                          {t('button.clear')}
-                        </Button>
-                        <Button variant="ghost">{t('button.cancel')}</Button>
-                        <Button variant="danger" size="sm">
-                          {t('button.delete')}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        Размеры кнопок
-                      </h4>
-                      <div className="flex flex-wrap gap-4">
-                        <Button size="sm">{t('button.save')}</Button>
-                        <Button size="md">{t('button.save')}</Button>
-                        <Button size="lg">{t('button.save')}</Button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        Состояния кнопок
-                      </h4>
-                      <div className="flex flex-wrap gap-4">
-                        <Button isLoading>{t('button.save')}</Button>
-                        <Button disabled>{t('button.save')}</Button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
-                        Счётчик: {count}
-                      </h4>
-                      <Button onClick={() => setCount((c) => c + 1)}>Увеличить</Button>
-                    </div>
-                  </div>
-                </Card>
-
-                <Card variant="default" className="p-6 text-center">
-                  <P className="text-sm">
-                    {t('message.loading')} Редактируйте <code>src/renderer/App.tsx</code> и
-                    сохраняйте для HMR
-                  </P>
-                </Card>
-              </div>
-            )}
-
-            {activeTab === 'history' && <History />}
-
-            {activeTab === 'favorites' && (
-              <div className="p-6">
-                <Favorites />
-              </div>
-            )}
-
-            {activeTab === 'settings' && (
-              <div className="p-6">
-                <HistorySettings />
-              </div>
-            )}
           </div>
-        </div>
-      }
-    />
+        }
+        main={
+          <div className="flex h-full">
+            <nav className="w-64 border-r border-gray-200 dark:border-gray-700 p-4">
+              <div className="space-y-1">
+                {tabs.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`w-full text-left px-4 py-2 rounded-lg transition-colors ${
+                      activeTab === tab.id
+                        ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-900 dark:text-blue-100 font-medium'
+                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </nav>
+
+            <div className="flex-1 overflow-auto">
+              {activeTab === 'demo' && (
+                <div className="p-8 max-w-4xl mx-auto w-full">
+                  <Card variant="elevated" className="p-6 mb-6">
+                    <H3 className="mb-4">{t('overlay.title')}</H3>
+                    <P className="text-gray-600 dark:text-gray-400 mb-4">
+                      {t('overlay.description')}
+                    </P>
+                    <HotkeyStatus />
+                  </Card>
+
+                  <Card variant="elevated" className="p-6 mb-6">
+                    <H3 className="mb-6">Демонстрация компонентов</H3>
+
+                    <div className="space-y-6">
+                      <div>
+                        <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                          Входные поля
+                        </h4>
+                        <div className="space-y-4">
+                          <Input
+                            label={t('label.source')}
+                            placeholder={t('input.placeholder.source')}
+                            value={sourceText}
+                            onChange={(e) => setSourceText(e.target.value)}
+                          />
+                          <Input
+                            label={t('label.target')}
+                            placeholder={t('input.placeholder.target')}
+                            disabled
+                            value={`Перевод (${count} раз)`}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                          Кнопки
+                        </h4>
+                        <div className="flex flex-wrap gap-4">
+                          <Button variant="primary" onClick={handleTranslate}>
+                            {t('button.translate')}
+                          </Button>
+                          <Button variant="secondary" onClick={handleClear}>
+                            {t('button.clear')}
+                          </Button>
+                          <Button variant="ghost">{t('button.cancel')}</Button>
+                          <Button variant="danger" size="sm">
+                            {t('button.delete')}
+                          </Button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                          Размеры кнопок
+                        </h4>
+                        <div className="flex flex-wrap gap-4">
+                          <Button size="sm">{t('button.save')}</Button>
+                          <Button size="md">{t('button.save')}</Button>
+                          <Button size="lg">{t('button.save')}</Button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                          Состояния кнопок
+                        </h4>
+                        <div className="flex flex-wrap gap-4">
+                          <Button isLoading>{t('button.save')}</Button>
+                          <Button disabled>{t('button.save')}</Button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h4 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">
+                          Счётчик: {count}
+                        </h4>
+                        <Button onClick={() => setCount((c) => c + 1)}>Увеличить</Button>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card variant="default" className="p-6 text-center">
+                    <P className="text-sm">
+                      {t('message.loading')} Редактируйте <code>src/renderer/App.tsx</code> и
+                      сохраняйте для HMR
+                    </P>
+                  </Card>
+                </div>
+              )}
+
+              {activeTab === 'history' && <History />}
+
+              {activeTab === 'favorites' && (
+                <div className="p-6">
+                  <Favorites />
+                </div>
+              )}
+
+              {activeTab === 'settings' && <Settings />}
+            </div>
+          </div>
+        }
+      />
+    </>
   );
 }
 

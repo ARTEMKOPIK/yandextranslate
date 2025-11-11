@@ -62,6 +62,21 @@ export const api = {
     getConfig: () => ipcRenderer.invoke('history:get-config'),
     updateConfig: (config: unknown) => ipcRenderer.invoke('history:update-config', config),
   },
+
+  // Settings operations
+  settings: {
+    get: () => ipcRenderer.invoke('settings:get'),
+    update: (updates: unknown) => ipcRenderer.invoke('settings:update', updates),
+    reset: () => ipcRenderer.invoke('settings:reset'),
+    validateHotkey: (hotkey: string) => ipcRenderer.invoke('settings:validate-hotkey', hotkey),
+  },
+
+  // Settings changed event
+  onSettingsChanged: (callback: (settings: unknown) => void) => {
+    const subscription = (_: unknown, settings: unknown) => callback(settings);
+    ipcRenderer.on('settings-changed', subscription);
+    return () => ipcRenderer.removeListener('settings-changed', subscription);
+  },
 };
 
 contextBridge.exposeInMainWorld('api', api);
