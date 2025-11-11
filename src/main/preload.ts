@@ -96,6 +96,56 @@ export const api = {
   getAnalyticsStats: () => ipcRenderer.invoke('analytics:get-stats'),
   resetAnalytics: () => ipcRenderer.invoke('analytics:reset'),
   exportAnalytics: () => ipcRenderer.invoke('analytics:export'),
+
+  // Update operations
+  updater: {
+    checkForUpdates: (silent?: boolean) => ipcRenderer.invoke('updater:check', silent),
+    downloadUpdate: () => ipcRenderer.invoke('updater:download'),
+    quitAndInstall: () => ipcRenderer.send('updater:quit-and-install'),
+    skipVersion: (version: string) => ipcRenderer.send('updater:skip-version', version),
+    clearSkippedVersions: () => ipcRenderer.send('updater:clear-skipped-versions'),
+    getSkippedVersions: () => ipcRenderer.invoke('updater:get-skipped-versions'),
+    updateConfig: (config: unknown) => ipcRenderer.invoke('updater:update-config', config),
+    getConfig: () => ipcRenderer.invoke('updater:get-config'),
+    getStatus: () => ipcRenderer.invoke('updater:get-status'),
+  },
+
+  // Update events
+  onUpdateChecking: (callback: () => void) => {
+    const subscription = () => callback();
+    ipcRenderer.on('updater:update-checking', subscription);
+    return () => ipcRenderer.removeListener('updater:update-checking', subscription);
+  },
+  onUpdateAvailable: (callback: (info: unknown) => void) => {
+    const subscription = (_: unknown, info: unknown) => callback(info);
+    ipcRenderer.on('updater:update-available', subscription);
+    return () => ipcRenderer.removeListener('updater:update-available', subscription);
+  },
+  onUpdateNotAvailable: (callback: (info: unknown) => void) => {
+    const subscription = (_: unknown, info: unknown) => callback(info);
+    ipcRenderer.on('updater:update-not-available', subscription);
+    return () => ipcRenderer.removeListener('updater:update-not-available', subscription);
+  },
+  onUpdateDownloadProgress: (callback: (progress: unknown) => void) => {
+    const subscription = (_: unknown, progress: unknown) => callback(progress);
+    ipcRenderer.on('updater:update-download-progress', subscription);
+    return () => ipcRenderer.removeListener('updater:update-download-progress', subscription);
+  },
+  onUpdateDownloaded: (callback: (info: unknown) => void) => {
+    const subscription = (_: unknown, info: unknown) => callback(info);
+    ipcRenderer.on('updater:update-downloaded', subscription);
+    return () => ipcRenderer.removeListener('updater:update-downloaded', subscription);
+  },
+  onUpdateError: (callback: (error: unknown) => void) => {
+    const subscription = (_: unknown, error: unknown) => callback(error);
+    ipcRenderer.on('updater:update-error', subscription);
+    return () => ipcRenderer.removeListener('updater:update-error', subscription);
+  },
+  onUpdateSkipped: (callback: (info: unknown) => void) => {
+    const subscription = (_: unknown, info: unknown) => callback(info);
+    ipcRenderer.on('updater:update-skipped', subscription);
+    return () => ipcRenderer.removeListener('updater:update-skipped', subscription);
+  },
 };
 
 contextBridge.exposeInMainWorld('api', api);

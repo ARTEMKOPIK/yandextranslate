@@ -105,3 +105,30 @@ export interface AnalyticsStats extends UsageMetrics {
   since: string;
   daysTracked: number;
 }
+
+export interface UpdateInfo {
+  version: string;
+  releaseNotes?: string;
+  releaseDate?: string;
+  stagingPercentage?: number;
+}
+
+export interface UpdateProgress {
+  percent: number;
+  bytesPerSecond: number;
+  transferred: number;
+  total: number;
+}
+
+export interface UpdateStatus {
+  checking: boolean;
+  downloading: boolean;
+  downloaded: boolean;
+  currentVersion: string;
+}
+
+export interface UpdateConfig {
+  autoDownload: boolean;
+  allowPrerelease: boolean;
+  allowDowngrade: boolean;
+}
