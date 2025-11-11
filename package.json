@@ -7,7 +7,6 @@
     "email": "dev@yandextranslate.local"
   },
   "main": "dist/main/index.js",
-  "type": "module",
   "scripts": {
     "dev": "concurrently \"npm run dev:vite\" \"npm run dev:electron\"",
     "dev:vite": "vite",
@@ -35,7 +34,7 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.2.3",
     "electron-log": "^5.4.3",
-    "electron-store": "^11.0.2",
+    "electron-store": "^8.2.0",
     "electron-updater": "^6.6.2",
     "i18next": "^25.6.2",
     "postcss": "^8.5.6",
