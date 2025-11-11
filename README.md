@@ -11,6 +11,7 @@ A modern Electron + React + TypeScript application for translation using Yandex 
 - **ESLint + Prettier**: Code quality and formatting
 - **GitHub Actions**: Automated CI/CD pipeline
 - **Floating Overlay Window**: Always-on-top translation window with global hotkeys
+- **System Tray Integration**: Run in background with tray icon and context menu
 - **Theme Support**: Light/dark mode with system detection
 - **Internationalization**: Multi-language support (Russian default)
 - **Yandex.Translate Integration**: Production-ready translation service with auto-detection
@@ -168,6 +169,46 @@ You can test the overlay window from the main application:
 2. Check the registered hotkey status
 3. Use the "Toggle Overlay" button for manual testing
 4. Use "Reload" to re-register hotkeys if needed
+
+## 🖼️ System Tray Integration
+
+The application runs in the system tray, allowing it to stay available without cluttering your taskbar.
+
+### Tray Icon
+
+- **Adaptive Icons**: Automatically switches between light and dark icons based on your system theme
+- **High DPI Support**: Crisp icons on high-resolution displays (includes @2x assets)
+- **Windows Theme Support**: Detects Windows light/dark mode and adjusts icon accordingly
+
+### Context Menu Actions
+
+Right-click the tray icon to access:
+- **Show/Hide QuickTranslate**: Toggle the floating overlay window
+- **Toggle Theme**: Switch between Light/Dark/System themes
+- **Show Main Window**: Open the main application window
+- **Settings**: Access application settings
+- **Check for Updates**: Check for app updates
+- **Quit**: Exit the application completely
+
+### Tray Behavior Settings
+
+Configure tray behavior in Settings → General:
+- **Start Minimized to Tray**: Launch app in background (hidden in tray)
+- **Close to Tray**: Minimize to tray instead of quitting when closing main window
+
+### Notifications
+
+Configure notifications in Settings → System Tray:
+- **Show Notifications**: Enable/disable all tray notifications
+- **Translation Complete**: Get notified when translations finish (optional)
+- **Error Alerts**: Automatically shown for translation errors
+
+### Usage Tips
+
+1. **Double-click** the tray icon to show/hide the main window
+2. **Right-click** the tray icon to access the context menu
+3. Use `Win+T` to show QuickTranslate overlay from anywhere
+4. Enable "Close to Tray" to keep the app running in the background
 
 ## 🔄 IPC Communication
 

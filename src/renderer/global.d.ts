@@ -7,6 +7,7 @@ import type {
   HistoryConfig,
   AppSettings,
   HotkeyValidation,
+  DeepPartial,
 } from '../shared/types';
 
 export interface TranslateResult {
@@ -69,13 +70,16 @@ export interface ElectronAPI {
   // Settings operations
   settings: {
     get: () => Promise<AppSettings>;
-    update: (updates: Partial<AppSettings>) => Promise<AppSettings>;
+    update: (updates: DeepPartial<AppSettings>) => Promise<AppSettings>;
     reset: () => Promise<AppSettings>;
     validateHotkey: (hotkey: string) => Promise<HotkeyValidation>;
   };
 
   // Settings changed event
   onSettingsChanged: (callback: (settings: AppSettings) => void) => () => void;
+
+  // Navigate to settings event (from tray menu)
+  onNavigateToSettings: (callback: () => void) => () => void;
 }
 
 declare global {

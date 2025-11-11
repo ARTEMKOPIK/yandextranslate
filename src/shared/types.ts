@@ -61,9 +61,15 @@ export interface HistoryConfig {
 export type ThemeMode = 'light' | 'dark' | 'system';
 export type Language = 'ru' | 'en';
 
+export type DeepPartial<T> = {
+  [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P];
+};
+
 export interface AppSettings {
   general: {
     historyMaxEntries: number;
+    startMinimizedToTray: boolean;
+    closeToTray: boolean;
   };
   hotkeys: {
     overlay: string;
@@ -73,6 +79,10 @@ export interface AppSettings {
   };
   theme: {
     mode: ThemeMode;
+  };
+  tray: {
+    showNotifications: boolean;
+    showTranslationComplete: boolean;
   };
 }
 

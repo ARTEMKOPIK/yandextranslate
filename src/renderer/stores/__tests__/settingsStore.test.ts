@@ -3,10 +3,18 @@ import { useSettingsStore } from '../settingsStore';
 import type { AppSettings } from '../../../shared/types';
 
 const mockSettings: AppSettings = {
-  general: { historyMaxEntries: 1000 },
+  general: {
+    historyMaxEntries: 1000,
+    startMinimizedToTray: false,
+    closeToTray: true,
+  },
   hotkeys: { overlay: 'Super+T' },
   interface: { language: 'ru' },
   theme: { mode: 'dark' },
+  tray: {
+    showNotifications: true,
+    showTranslationComplete: false,
+  },
 };
 
 describe('settingsStore', () => {

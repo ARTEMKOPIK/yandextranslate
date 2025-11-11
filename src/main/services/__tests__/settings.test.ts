@@ -30,10 +30,18 @@ describe('SettingsService', () => {
     it('should return default settings on first load', () => {
       const settings = service.getSettings();
       expect(settings).toEqual({
-        general: { historyMaxEntries: 1000 },
+        general: {
+          historyMaxEntries: 1000,
+          startMinimizedToTray: false,
+          closeToTray: true,
+        },
         hotkeys: { overlay: 'Super+T' },
         interface: { language: 'ru' },
         theme: { mode: 'dark' },
+        tray: {
+          showNotifications: true,
+          showTranslationComplete: false,
+        },
       });
     });
   });
@@ -87,15 +95,27 @@ describe('SettingsService', () => {
   describe('resetSettings', () => {
     it('should reset to default settings', () => {
       service.updateSettings({
-        general: { historyMaxEntries: 500 },
+        general: {
+          historyMaxEntries: 500,
+          startMinimizedToTray: true,
+          closeToTray: false,
+        },
         theme: { mode: 'light' },
       });
       const reset = service.resetSettings();
       expect(reset).toEqual({
-        general: { historyMaxEntries: 1000 },
+        general: {
+          historyMaxEntries: 1000,
+          startMinimizedToTray: false,
+          closeToTray: true,
+        },
         hotkeys: { overlay: 'Super+T' },
         interface: { language: 'ru' },
         theme: { mode: 'dark' },
+        tray: {
+          showNotifications: true,
+          showTranslationComplete: false,
+        },
       });
     });
   });

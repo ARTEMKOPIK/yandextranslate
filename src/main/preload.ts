@@ -77,6 +77,13 @@ export const api = {
     ipcRenderer.on('settings-changed', subscription);
     return () => ipcRenderer.removeListener('settings-changed', subscription);
   },
+
+  // Navigate to settings event (from tray menu)
+  onNavigateToSettings: (callback: () => void) => {
+    const subscription = () => callback();
+    ipcRenderer.on('navigate-to-settings', subscription);
+    return () => ipcRenderer.removeListener('navigate-to-settings', subscription);
+  },
 };
 
 contextBridge.exposeInMainWorld('api', api);
