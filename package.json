@@ -1,7 +1,7 @@
 {
   "name": "yandextranslate",
-  "version": "0.1.0",
-  "description": "Yandex Translate Electron App",
+  "version": "1.0.0-rc.1",
+  "description": "A modern, feature-rich desktop translation application powered by Yandex.Translate API",
   "author": {
     "name": "Yandex Translate",
     "email": "dev@yandextranslate.local"
@@ -22,7 +22,10 @@
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:ui": "vitest --ui"
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.17",
@@ -45,7 +48,10 @@
   "devDependencies": {
     "@electron-toolkit/preload": "^2.0.0",
     "@electron/remote": "^2.0.0",
+    "@playwright/test": "^1.56.1",
+    "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20.10.6",
     "@types/react": "^18.2.43",
     "@types/react-dom": "^18.2.17",
@@ -60,6 +66,7 @@
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.2",
     "jsdom": "^27.1.0",
+    "playwright": "^1.56.1",
     "prettier": "^3.1.1",
     "typescript": "^5.3.3",
     "vite": "^5.0.8",

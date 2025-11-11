@@ -1,88 +1,252 @@
-# yandextranslate
+# Yandex Translate Desktop
 
-A modern Electron + React + TypeScript application for translation using Yandex Translate API.
+> A modern, feature-rich desktop translation application powered by Yandex.Translate API
 
-## 🚀 Features
+<div align="center">
 
-- **Electron + React**: Cross-platform desktop application
-- **TypeScript**: Full type safety across the codebase
-- **Vite**: Lightning-fast build tool and development server
-- **Hot Module Replacement**: Instant renderer updates during development
-- **ESLint + Prettier**: Code quality and formatting
-- **GitHub Actions**: Automated CI/CD pipeline
-- **Floating Overlay Window**: Always-on-top translation window with global hotkeys
-- **System Tray Integration**: Run in background with tray icon and context menu
-- **Theme Support**: Light/dark mode with system detection
-- **Internationalization**: Multi-language support (Russian default)
-- **Yandex.Translate Integration**: Production-ready translation service with auto-detection
-- **Request Queue & Rate Limiting**: Intelligent API request management
-- **Error Handling & Retry Logic**: Graceful degradation with automatic retries
-- **Logging System**: Structured logging with automatic rotation and retention
-- **Usage Analytics**: Anonymous local-only metrics tracking
-- **Error Boundary**: Graceful UI error handling with recovery options
-- **Auto-Updates**: Seamless automatic updates with progress tracking and version skipping
+![Version](https://img.shields.io/badge/version-1.0.0--rc.1-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey)
+![Electron](https://img.shields.io/badge/Electron-27-blue)
+![React](https://img.shields.io/badge/React-18-61dafb)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
 
-## 📋 Tech Stack
+</div>
 
-- **Electron 27**: Cross-platform desktop framework
-- **React 18**: UI library
-- **TypeScript 5**: Type-safe JavaScript
-- **Vite 5**: Modern build tool with HMR
-- **ESLint**: Code linting
-- **Prettier**: Code formatting
-- **Electron Builder**: Application packaging
+---
 
-## 🛠️ Setup & Installation
+## 📖 About
+
+Yandex Translate Desktop is a powerful, cross-platform desktop application that brings the speed and accuracy of Yandex.Translate API to your desktop. With support for 30+ languages, a floating overlay window, and system tray integration, it's designed to be your go-to translation companion that stays out of your way until you need it.
+
+### Why Yandex Translate Desktop?
+
+- **⚡ Lightning Fast**: Translate text in milliseconds with optimized API requests
+- **🎯 Always Accessible**: Global hotkey brings up translation overlay from anywhere
+- **🌙 Easy on the Eyes**: Beautiful dark/light themes with automatic system detection
+- **🔒 Privacy First**: All data stored locally, full control over your translation history
+- **🚀 Auto-Updates**: Stay up-to-date with the latest features automatically
+- **🌐 30+ Languages**: Comprehensive language support for global communication
+
+---
+
+## ✨ Key Features
+
+### 🪟 Floating Overlay Window
+- **Global Hotkey**: Press `Win+T` (or `Ctrl+Shift+T`) from anywhere to open the translation window
+- **Always-on-Top**: Overlay stays visible while you work
+- **Smart Positioning**: Appears near your cursor, remembers last position
+- **Auto-Focus**: Input field automatically focused for instant typing
+- **Keyboard Shortcuts**: 
+  - `Ctrl+Enter` to translate
+  - `Escape` to hide
+- **Quick Actions**: Copy, paste, and clear with one click
+
+### 🎨 Modern UI/UX
+- **Responsive Design**: Clean, intuitive interface built with Tailwind CSS
+- **Dark/Light/System Themes**: Choose your preferred theme or follow your OS
+- **Smooth Animations**: Polished transitions and feedback
+- **Toast Notifications**: Non-intrusive success and error messages
+- **Error Boundary**: Graceful error handling with recovery options
+
+### 📚 History & Favorites
+- **Translation History**: Automatic tracking of all translations (configurable)
+- **Search & Filter**: Find past translations by text, language, or date
+- **Favorites System**: Star important translations for quick access
+- **Usage Statistics**: Track translation count, favorites, and more
+- **Export/Import**: Backup your history to JSON
+
+### ⚙️ Comprehensive Settings
+- **General**: Configure history limits, startup behavior, tray options
+- **Hotkeys**: Customize global shortcuts with validation
+- **Interface**: Language selection (Russian/English)
+- **Theme**: Light, dark, or system mode
+- **Tray**: Control notifications and tray behavior
+- **Updates**: Auto-download, prerelease, and version management
+- **Logs**: View, export, and manage application logs
+- **Analytics**: Anonymous usage metrics (stored locally)
+
+### 🔔 System Tray Integration
+- **Background Mode**: Runs quietly in system tray
+- **Context Menu**: Quick access to overlay, settings, and updates
+- **Theme Toggle**: Switch themes directly from tray
+- **Smart Notifications**: Optional notifications for translation completion
+- **Adaptive Icons**: Automatically adjusts to light/dark system themes
+
+### 🔄 Automatic Updates
+- **Seamless Updates**: Check for updates automatically on startup
+- **Differential Downloads**: Windows users download only changed files
+- **Progress Tracking**: Real-time download progress with speed and size
+- **Version Skipping**: Skip versions you don't want to install
+- **Manual Control**: Check for updates anytime from Settings or tray menu
+
+### 🔐 Translation Service
+- **Yandex.Translate API**: Industry-leading translation accuracy
+- **Auto-Detection**: Automatically detects source language
+- **Request Queue**: Intelligent API request management
+- **Rate Limiting**: Respects API limits with configurable delays
+- **Retry Logic**: Automatic retries with exponential backoff
+- **Error Handling**: User-friendly error messages in Russian
+
+### 📊 Logging & Analytics
+- **Structured Logging**: Comprehensive application event logging
+- **Automatic Rotation**: Log files rotate at 5MB
+- **Privacy-Focused**: No sensitive data (API keys, text) logged
+- **Usage Analytics**: Track translations, favorites, errors (local only)
+- **Full Transparency**: View, export, and delete all data anytime
+
+### ♿ Accessibility
+- **Keyboard Navigation**: Full keyboard support throughout the app
+- **Focus Management**: Clear focus indicators on all controls
+- **ARIA Support**: Screen reader compatible
+- **High Contrast**: Detects and adapts to system high contrast mode
+- **Reduced Motion**: Respects prefers-reduced-motion setting
+- **WCAG 2.1 Level AA**: Meets accessibility standards
+
+---
+
+## 🖼️ Screenshots
+
+> *Screenshots will be added here*
+
+### Main Window
+![Main Window - Light Theme](docs/screenshots/main-light.png)
+![Main Window - Dark Theme](docs/screenshots/main-dark.png)
+
+### Floating Overlay
+![Overlay Window](docs/screenshots/overlay.png)
+
+### Settings Panel
+![Settings - General](docs/screenshots/settings-general.png)
+![Settings - Updates](docs/screenshots/settings-updates.png)
+
+### History & Favorites
+![History Panel](docs/screenshots/history.png)
+![Favorites Panel](docs/screenshots/favorites.png)
+
+---
+
+## 💾 Installation
+
+### For Users
+
+#### Windows
+1. Download the latest installer from the [Releases](https://github.com/your-username/yandextranslate/releases) page
+2. Choose either:
+   - **NSIS Installer**: `Yandex-Translate-Setup-1.0.0-rc.1.exe` (recommended)
+   - **Portable**: `Yandex-Translate-1.0.0-rc.1.exe` (no installation required)
+3. Run the installer and follow the setup wizard
+4. Launch the app from Start Menu or Desktop shortcut
+
+#### macOS
+1. Download the DMG file from the [Releases](https://github.com/your-username/yandextranslate/releases) page
+2. Open the DMG and drag Yandex Translate to Applications
+3. Launch from Applications folder
+4. If you see a security warning:
+   - Go to System Preferences → Security & Privacy
+   - Click "Open Anyway"
+
+#### Linux
+1. Download the appropriate package:
+   - **AppImage**: `Yandex-Translate-1.0.0-rc.1.AppImage` (universal)
+   - **Debian/Ubuntu**: `yandex-translate_1.0.0-rc.1_amd64.deb`
+2. For AppImage:
+   ```bash
+   chmod +x Yandex-Translate-1.0.0-rc.1.AppImage
+   ./Yandex-Translate-1.0.0-rc.1.AppImage
+   ```
+3. For DEB package:
+   ```bash
+   sudo dpkg -i yandex-translate_1.0.0-rc.1_amd64.deb
+   ```
+
+### Getting Started
+
+1. **Get API Key**: 
+   - Sign up at [Yandex Cloud Console](https://cloud.yandex.com/)
+   - Create an API key for Translate API
+   - See [API Key documentation](https://cloud.yandex.com/en/docs/iam/concepts/authorization/api-key)
+
+2. **Configure API Key**:
+   - Create a `.env` file in the app's data directory:
+     - Windows: `%APPDATA%\yandextranslate\.env`
+     - macOS: `~/Library/Application Support/yandextranslate/.env`
+     - Linux: `~/.config/yandextranslate/.env`
+   - Add your API key:
+     ```env
+     YANDEX_API_KEY=your_api_key_here
+     ```
+
+3. **Launch and Translate**:
+   - Press `Win+T` (or configured hotkey) to open overlay
+   - Type or paste text
+   - Select target language
+   - Press `Enter` or click Translate
+
+---
+
+## 👨‍💻 For Developers
 
 ### Prerequisites
-
 - Node.js 18+ and npm
+- Git
 
-### Installation
+### Development Setup
 
 ```bash
+# Clone the repository
+git clone https://github.com/your-username/yandextranslate.git
+cd yandextranslate
+
 # Install dependencies
 npm install
-```
 
-## 🎯 Available Scripts
+# Create .env file for development
+cp .env.example .env
+# Edit .env and add your Yandex API key
 
-### Development
-
-```bash
-# Start development server with hot reload
+# Start development server
 npm run dev
 ```
 
 This command:
 - Starts Vite development server on `http://localhost:5173`
-- Launches Electron with the React renderer loaded
-- Provides hot module replacement for instant updates
-- Opens DevTools for debugging
+- Launches Electron with hot module replacement
+- Opens DevTools automatically
 
 ### Building
 
 ```bash
 # Build the entire application
 npm run build
-```
 
-This command:
-- Builds React renderer with Vite
-- Compiles main process TypeScript
-- Packages the application using electron-builder
-
-#### Build Variants
-
-```bash
-# Build only the Vite renderer
+# Build only renderer (React/Vite)
 npm run build:vite
 
-# Build only the main process
+# Build only main process (Electron)
 npm run build:main
 
-# Package the application
+# Build distributable packages
 npm run build:packages
+```
+
+### Testing
+
+```bash
+# Run unit tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run tests with UI
+npm run test:ui
+
+# Generate coverage report
+npm run test:coverage
+
+# Run E2E smoke tests
+npm run test:e2e
 ```
 
 ### Code Quality
@@ -91,390 +255,183 @@ npm run build:packages
 # Lint and fix code
 npm run lint
 
-# Format code
+# Format code with Prettier
 npm run format
 
 # Type check TypeScript
 npm run type-check
-
-# Format check (without fixing)
-npm run format -- --check
 ```
 
-## 📁 Project Structure
+### Project Structure
 
 ```
 yandextranslate/
 ├── src/
-│   ├── main/
-│   │   ├── index.ts          # Electron main process entry point
-│   │   └── preload.ts        # Preload script for secure IPC
-│   ├── renderer/
-│   │   ├── index.html        # HTML entry point
-│   │   ├── main.tsx          # React entry point
-│   │   ├── App.tsx           # Root component
-│   │   ├── App.css           # App styles
-│   │   └── index.css         # Global styles
-│   └── shared/
-│       └── types.ts          # Shared TypeScript types
-├── assets/                    # Application assets (icons, etc.)
-├── dist/                      # Build output (generated)
-│   ├── main/                 # Compiled main process
-│   └── renderer/             # Built renderer
-├── package.json
-├── tsconfig.json             # TypeScript config for renderer
-├── tsconfig.main.json        # TypeScript config for main process
-├── vite.config.ts            # Vite configuration
-├── .eslintrc.json            # ESLint configuration
-├── .prettierrc.json          # Prettier configuration
-└── README.md
+│   ├── main/                    # Electron main process
+│   │   ├── index.ts             # Main entry point
+│   │   ├── preload.ts           # Preload script (IPC bridge)
+│   │   └── services/            # Backend services
+│   │       ├── yandex/          # Translation API client
+│   │       ├── config.ts        # Environment configuration
+│   │       ├── history.ts       # History management
+│   │       ├── settings.ts      # Settings management
+│   │       ├── logger.ts        # Logging service
+│   │       ├── analytics.ts     # Usage analytics
+│   │       └── updater.ts       # Auto-update service
+│   ├── renderer/                # React application
+│   │   ├── main.tsx             # React entry point
+│   │   ├── App.tsx              # Main app component
+│   │   ├── OverlayApp.tsx       # Overlay window component
+│   │   ├── components/          # Reusable UI components
+│   │   ├── contexts/            # React contexts (Theme)
+│   │   ├── stores/              # Zustand state stores
+│   │   ├── hooks/               # Custom React hooks
+│   │   └── i18n/                # Internationalization
+│   ├── shared/                  # Shared types and constants
+│   │   ├── types.ts             # TypeScript type definitions
+│   │   └── languages.ts         # Supported languages
+│   └── test/                    # Test setup and utilities
+├── e2e/                         # End-to-end tests
+├── docs/                        # Documentation
+│   ├── AUTO_UPDATES.md          # Auto-updates guide
+│   ├── TESTING_UPDATES.md       # Testing updates locally
+│   └── LOGGING_AND_ANALYTICS.md # Logging and analytics guide
+├── assets/                      # Application assets
+│   └── icons/                   # App and tray icons
+├── scripts/                     # Build and utility scripts
+├── .github/workflows/           # CI/CD workflows
+├── package.json                 # Dependencies and scripts
+├── tsconfig.json                # TypeScript config (renderer)
+├── tsconfig.main.json           # TypeScript config (main)
+├── vite.config.ts               # Vite configuration
+├── vitest.config.ts             # Vitest configuration
+├── playwright.config.ts         # Playwright configuration
+├── tailwind.config.js           # Tailwind CSS configuration
+└── README.md                    # This file
 ```
 
-## 🔒 Security
+### Architecture
 
-- **Context Isolation**: Enabled for better security
-- **Preload Script**: Secure IPC communication between processes
-- **Node Integration**: Disabled in renderer process
-- **Remote Module**: Disabled
+- **Main Process**: Node.js environment with access to system APIs
+- **Renderer Process**: React 18 with TypeScript and Tailwind CSS
+- **IPC Communication**: Secure preload script exposes controlled API
+- **State Management**: Zustand for React state, Electron Store for persistence
+- **Styling**: Tailwind CSS v4 with dark mode support
+- **Translation Service**: Axios-based HTTP client with queue and retry logic
+- **Testing**: Vitest for unit tests, Playwright for E2E tests
 
-## ⌨️ Floating Overlay Window
+---
 
-The application includes a floating overlay window for quick translations without switching focus from your work.
+## 🌐 Supported Languages
 
-### Global Hotkeys
+30+ languages supported by Yandex.Translate API:
 
-- **Primary**: `Win+T` (Windows) / `Super+T` (Linux)
-- **Fallback**: `Ctrl+Shift+T` (all platforms)
+- 🇬🇧 English • 🇷🇺 Russian • 🇩🇪 German • 🇫🇷 French • 🇪🇸 Spanish
+- 🇮🇹 Italian • 🇵🇹 Portuguese • 🇵🇱 Polish • 🇺🇦 Ukrainian • 🇹🇷 Turkish
+- 🇨🇳 Chinese • 🇯🇵 Japanese • 🇰🇷 Korean • 🇸🇦 Arabic • 🇮🇱 Hebrew
+- 🇳🇱 Dutch • 🇸🇪 Swedish • 🇫🇮 Finnish • 🇩🇰 Danish • 🇳🇴 Norwegian
+- 🇨🇿 Czech • 🇸🇰 Slovak • 🇧🇬 Bulgarian • 🇷🇴 Romanian • 🇭🇺 Hungarian
+- 🇬🇷 Greek • 🇻🇳 Vietnamese • 🇹🇭 Thai • 🇮🇩 Indonesian • 🇮🇳 Hindi
 
-If the primary hotkey conflicts with another application, the fallback will be used automatically.
+All language names displayed in Russian for consistent UX.
 
-### Features
+---
 
-- **Always-on-Top**: The overlay stays above other windows
-- **Frameless & Transparent**: Sleek, modern design with rounded corners
-- **Smart Positioning**: Appears near your cursor on first show, remembers last position
-- **Auto-Focus**: Text input is automatically focused when shown
-- **Keyboard Shortcuts**:
-  - `Enter`: Translate text
-  - `Escape`: Hide overlay
-- **Compact UI**: Optimized for quick translations (400×300px)
+## 🔒 Security & Privacy
 
-### Usage
+### Data Privacy
+- **Local Storage Only**: All data (history, settings, logs) stored on your device
+- **No Telemetry**: Analytics are local-only, never transmitted
+- **API Key Protection**: API keys stored in environment variables, never logged
+- **User Control**: Export, view, and delete all data at any time
 
-1. Press `Win+T` anywhere to show the overlay
-2. Start typing immediately (input is auto-focused)
-3. Press `Enter` to translate or `Escape` to hide
-4. Click the X button or press `Escape` to close
+### Security Features
+- **Context Isolation**: Renderer process isolated from Node.js
+- **Preload Script**: Controlled IPC communication via secure bridge
+- **No Node Integration**: Renderer can't access Node.js APIs directly
+- **Code Signing**: Signed releases for Windows and macOS (when configured)
+- **HTTPS Only**: All API communication over secure connections
+- **Checksum Verification**: Updates verified with SHA512 checksums
 
-### Testing in Development
+---
 
-You can test the overlay window from the main application:
-1. Look for the "Floating Translation Window" card
-2. Check the registered hotkey status
-3. Use the "Toggle Overlay" button for manual testing
-4. Use "Reload" to re-register hotkeys if needed
+## 📚 Documentation
 
-## 🖼️ System Tray Integration
+- [Auto-Updates Guide](docs/AUTO_UPDATES.md) - Comprehensive auto-updates documentation
+- [Testing Updates](docs/TESTING_UPDATES.md) - How to test updates locally
+- [Logging & Analytics](docs/LOGGING_AND_ANALYTICS.md) - Logging and analytics systems
+- [Accessibility](ACCESSIBILITY.md) - Accessibility features and WCAG compliance
+- [Changelog](CHANGELOG.md) - Version history and release notes
 
-The application runs in the system tray, allowing it to stay available without cluttering your taskbar.
-
-### Tray Icon
-
-- **Adaptive Icons**: Automatically switches between light and dark icons based on your system theme
-- **High DPI Support**: Crisp icons on high-resolution displays (includes @2x assets)
-- **Windows Theme Support**: Detects Windows light/dark mode and adjusts icon accordingly
-
-### Context Menu Actions
-
-Right-click the tray icon to access:
-- **Show/Hide QuickTranslate**: Toggle the floating overlay window
-- **Toggle Theme**: Switch between Light/Dark/System themes
-- **Show Main Window**: Open the main application window
-- **Settings**: Access application settings
-- **Check for Updates**: Check for app updates
-- **Quit**: Exit the application completely
-
-### Tray Behavior Settings
-
-Configure tray behavior in Settings → General:
-- **Start Minimized to Tray**: Launch app in background (hidden in tray)
-- **Close to Tray**: Minimize to tray instead of quitting when closing main window
-
-### Notifications
-
-Configure notifications in Settings → System Tray:
-- **Show Notifications**: Enable/disable all tray notifications
-- **Translation Complete**: Get notified when translations finish (optional)
-- **Error Alerts**: Automatically shown for translation errors
-
-### Usage Tips
-
-1. **Double-click** the tray icon to show/hide the main window
-2. **Right-click** the tray icon to access the context menu
-3. Use `Win+T` to show QuickTranslate overlay from anywhere
-4. Enable "Close to Tray" to keep the app running in the background
-
-## 🔄 IPC Communication
-
-The preload script exposes a secure API for renderer-to-main communication:
-
-```typescript
-// In renderer (React component)
-const version = await window.api.getVersion()
-
-// Toggle overlay window
-await window.api.toggleOverlay()
-
-// Get hotkey status
-const status = await window.api.getHotkeyStatus()
-
-// Listen for overlay events
-window.api.onOverlayShown(() => {
-  console.log('Overlay shown')
-})
-```
-
-## 🐛 Debugging
-
-### Renderer DevTools
-
-The app automatically opens DevTools in development mode. You can toggle it with:
-- **Ctrl+Shift+I** (Windows/Linux)
-- **Cmd+Shift+I** (macOS)
-
-### Hot Reload
-
-Changes to React components are instantly reflected without full app reload.
-
-## 📦 Distribution
-
-### Supported Platforms
-
-- **Windows**: NSIS installer + portable exe
-- **macOS**: DMG + ZIP
-- **Linux**: AppImage + DEB
-
-Build configurations are defined in `package.json` under the `build` section.
-
-## 🚀 Deployment
-
-### GitHub Actions
-
-The project includes a GitHub Actions workflow (`.github/workflows/lint.yml`) that:
-- Runs on Node.js 18 and 20
-- Performs type checking
-- Runs linting and formatting checks
-- Builds the application
-- Runs on push to `main`, `develop`, and feature branches
-
-## 🛠️ Development Tips
-
-1. **File Changes During Dev**:
-   - Renderer changes: HMR reloads automatically
-   - Main process changes: Restart app or use `npm run dev`
-
-2. **Type Safety**:
-   - Run `npm run type-check` to catch TypeScript errors
-
-3. **Code Quality**:
-   - Run `npm run format` before committing
-   - Run `npm run lint` to catch linting issues
-
-## 🌐 Translation Service
-
-The application integrates with Yandex.Translate REST API to provide robust translation capabilities.
-
-### Setup
-
-1. Get your Yandex Cloud API key:
-   - Sign up at [Yandex Cloud Console](https://cloud.yandex.com/)
-   - Create an API key for Translate API
-   - See [API Key documentation](https://cloud.yandex.com/en/docs/iam/concepts/authorization/api-key)
-
-2. Create a `.env` file in the root directory:
-
-```env
-YANDEX_API_KEY=your_api_key_here
-NODE_ENV=development
-```
-
-3. Use `.env.example` as a template (included in the repo)
-
-### Features
-
-- **Automatic Language Detection**: Detects source language when not specified
-- **Request Queuing**: Sequential processing to respect API limits
-- **Rate Limiting**: Configurable delays between requests (default 200ms)
-- **Automatic Retries**: Up to 3 retries with exponential backoff
-- **Error Handling**: User-friendly localized error messages
-- **Type-Safe API**: Full TypeScript support throughout
-
-### Usage in Renderer
-
-```typescript
-// Translate with auto-detection
-const result = await window.api.translate('Hello world', 'ru');
-if (result.success) {
-  console.log(result.data.translatedText); // "Привет мир"
-  console.log(result.data.detectedSourceLang); // "en"
-} else {
-  console.error(result.error.message);
-}
-
-// Translate with specified source language
-const result = await window.api.translate('Hello world', 'ru', 'en');
-
-// Validate API key
-const validation = await window.api.validateApiKey();
-if (!validation.valid) {
-  console.error(validation.error);
-}
-```
-
-### Security
-
-- API keys are stored in environment variables (never committed to git)
-- All API communication happens in the main Electron process
-- Renderer process has no direct access to API keys
-- IPC provides secure, controlled access to translation functionality
-
-### Testing
-
-The translation service includes comprehensive unit tests:
-
-```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with UI
-npm run test:ui
-```
-
-Tests cover:
-- API client error handling (401, 429, 500, network errors)
-- Language auto-detection
-- Translation with/without source language
-- Retry logic and failure scenarios
-- Request queuing and rate limiting
-
-See `src/main/services/yandex/README.md` for detailed API documentation.
-
-## 📊 Logging and Analytics
-
-The application includes comprehensive logging and analytics features to help with debugging and understanding usage patterns.
-
-### Logging
-
-- **Structured Logs**: All application events are logged with timestamps and context
-- **Automatic Rotation**: Log files rotate automatically at 5MB
-- **Retention Policy**: Last 10 archived logs are kept
-- **Log Locations**:
-  - Windows: `%APPDATA%\yandextranslate\logs\app.log`
-  - macOS: `~/Library/Application Support/yandextranslate/logs/app.log`
-  - Linux: `~/.config/yandextranslate/logs/app.log`
-
-### What Gets Logged
-
-- Application startup and initialization
-- Translation requests (source/target languages, text length)
-- User actions (copy, paste, favorites)
-- Settings changes
-- Errors and warnings
-- API failures
-
-### Accessing Logs
-
-Navigate to **Settings → Logs** to:
-- View recent logs (last 500 lines)
-- Export full logs to a file
-- Open logs folder
-- Clear all logs
-
-### Usage Analytics
-
-Anonymous usage metrics are tracked locally:
-- Translation count
-- Favorite toggles
-- Copy/paste actions
-- Overlay window shows
-- Error count
-
-### Accessing Analytics
-
-Navigate to **Settings → Analytics** to:
-- View usage statistics dashboard
-- Export analytics data as JSON
-- Reset all statistics
-
-### Privacy
-
-- **100% Local**: All logs and analytics are stored only on your computer
-- **No Transmission**: Nothing is ever sent to external servers
-- **Anonymous**: Only counters and technical data, no personal information
-- **No Text Logging**: Translation content is never logged
-- **User Control**: View, export, and delete all data at any time
-
-For detailed technical documentation, see `docs/LOGGING_AND_ANALYTICS.md`.
-
-## 🔄 Auto-Updates
-
-The application supports automatic updates through GitHub Releases:
-
-- **Automatic Checks**: Updates are checked on startup (production builds only)
-- **Manual Checks**: Check for updates from Settings → Updates or the tray menu
-- **Download Progress**: Real-time download progress with size and speed indicators
-- **Version Skipping**: Skip specific versions you don't want to install
-- **Differential Updates**: Windows NSIS installer downloads only changed files
-- **Code Signing**: Full support for signed releases (Windows & macOS)
-
-### Update Configuration
-
-Users can configure update behavior in **Settings → Updates**:
-- **Auto-download**: Automatically download updates in the background
-- **Allow prerelease**: Receive beta/prerelease versions
-- **Skip versions**: Manage skipped version list
-
-### For Developers
-
-See `docs/AUTO_UPDATES.md` for comprehensive documentation including:
-- Update architecture and flow
-- Publishing releases to GitHub
-- Code signing setup (Windows & macOS)
-- Testing updates locally
-- Troubleshooting common issues
-
-### Error Boundary
-
-The application includes a React Error Boundary that:
-- Catches UI errors before they crash the app
-- Displays a friendly error message with recovery options
-- Automatically logs errors for debugging
-- Shows detailed error info in development mode
-- Provides "Reload" and "Try Again" buttons for recovery
-
-## 📝 Environment Variables
-
-Create a `.env` file in the root directory:
-
-```env
-# Required for translation features
-YANDEX_API_KEY=your_api_key_here
-
-# Optional
-NODE_ENV=development
-```
-
-## 📄 License
-
-[Add your license here]
+---
 
 ## 🤝 Contributing
 
 Contributions are welcome! Please ensure:
-- Code passes linting: `npm run lint`
-- Code is properly formatted: `npm run format`
-- TypeScript types are correct: `npm run type-check`
-- Application builds successfully: `npm run build`
+
+1. **Code Quality**:
+   ```bash
+   npm run lint        # No linting errors
+   npm run format      # Code is formatted
+   npm run type-check  # TypeScript types are correct
+   npm test            # All tests pass
+   ```
+
+2. **Commit Guidelines**:
+   - Use conventional commits: `feat:`, `fix:`, `docs:`, `refactor:`, etc.
+   - Write clear, descriptive commit messages
+   - Reference issue numbers when applicable
+
+3. **Pull Requests**:
+   - Create a feature branch from `develop`
+   - Update documentation if needed
+   - Add tests for new features
+   - Ensure CI pipeline passes
+
+---
+
+## 🐛 Bug Reports & Feature Requests
+
+Found a bug or have a feature idea?
+
+1. Check [existing issues](https://github.com/your-username/yandextranslate/issues)
+2. Create a new issue with:
+   - Clear description
+   - Steps to reproduce (for bugs)
+   - Expected vs actual behavior
+   - System information (OS, version)
+   - Screenshots or logs (if applicable)
+
+---
+
+## 📜 License
+
+[Add your license here - e.g., MIT License]
+
+---
+
+## 🙏 Acknowledgments
+
+- **Yandex.Translate API**: Powering the translation engine
+- **Electron**: Cross-platform desktop framework
+- **React**: UI library
+- **Tailwind CSS**: Utility-first CSS framework
+- **Vite**: Lightning-fast build tool
+
+---
+
+## 📞 Support
+
+- **Documentation**: Check the [docs](docs/) folder
+- **Issues**: [GitHub Issues](https://github.com/your-username/yandextranslate/issues)
+- **Email**: dev@yandextranslate.local
+
+---
+
+<div align="center">
+
+**Made with ❤️ using Electron, React, and TypeScript**
+
+[⬆ Back to Top](#yandex-translate-desktop)
+
+</div>
