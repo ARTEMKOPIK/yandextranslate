@@ -12,13 +12,13 @@ if (fs.existsSync(envPath)) {
 }
 
 export interface AppConfig {
-  yandexApiKey: string | undefined;
+  geminiApiKey: string | undefined;
   isDevelopment: boolean;
 }
 
 export function getConfig(): AppConfig {
   return {
-    yandexApiKey: process.env.YANDEX_API_KEY,
+    geminiApiKey: process.env.GOOGLE_GEMINI_API_KEY,
     isDevelopment: process.env.NODE_ENV === 'development',
   };
 }
@@ -26,17 +26,17 @@ export function getConfig(): AppConfig {
 export function validateApiKey(): { valid: boolean; error?: string } {
   const config = getConfig();
 
-  if (!config.yandexApiKey) {
+  if (!config.geminiApiKey) {
     return {
       valid: false,
-      error: 'YANDEX_API_KEY not found in environment',
+      error: 'GOOGLE_GEMINI_API_KEY not found in environment',
     };
   }
 
-  if (config.yandexApiKey.trim().length === 0) {
+  if (config.geminiApiKey.trim().length === 0) {
     return {
       valid: false,
-      error: 'YANDEX_API_KEY is empty',
+      error: 'GOOGLE_GEMINI_API_KEY is empty',
     };
   }
 

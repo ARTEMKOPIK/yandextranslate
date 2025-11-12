@@ -15,7 +15,7 @@ import path from 'path';
 import { exec } from 'child_process';
 import { promisify } from 'util';
 import { getConfig, validateApiKey } from './services/config.js';
-import { TranslationService } from './services/yandex/translator.js';
+import { TranslationService } from './services/gemini/translator.js';
 import { HistoryService } from './services/history.js';
 import { SettingsService } from './services/settings.js';
 import { logger } from './services/logger.js';
@@ -51,9 +51,9 @@ let lastOverlayPosition: { x: number; y: number } | null = null;
 function initializeTranslationService() {
   const config = getConfig();
 
-  if (config.yandexApiKey) {
+  if (config.geminiApiKey) {
     translationService = new TranslationService({
-      apiKey: config.yandexApiKey,
+      apiKey: config.geminiApiKey,
       maxRetries: 3,
       retryDelayMs: 1000,
       rateLimitMs: 200,
@@ -323,7 +323,7 @@ function createTray() {
 
   updateTrayMenu();
 
-  tray.setToolTip('Яндекс Переводчик - QuickTranslate');
+  tray.setToolTip('QuickTranslate - AI Переводчик');
 
   // Handle double-click to show/hide main window
   tray.on('double-click', () => {

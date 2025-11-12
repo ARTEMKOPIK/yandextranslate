@@ -1,8 +1,8 @@
-import { YandexApiClient } from './client.js';
+import { GeminiApiClient } from './client.js';
 import { TranslationQueueItem, TranslationResult, TranslationServiceConfig } from './types.js';
 
 export class TranslationService {
-  private client: YandexApiClient;
+  private client: GeminiApiClient;
   private queue: TranslationQueueItem[] = [];
   private isProcessing = false;
   private lastRequestTime = 0;
@@ -10,7 +10,7 @@ export class TranslationService {
   private config: Required<TranslationServiceConfig>;
 
   constructor(config: TranslationServiceConfig) {
-    this.client = new YandexApiClient(config.apiKey);
+    this.client = new GeminiApiClient(config.apiKey);
     this.config = {
       apiKey: config.apiKey,
       maxRetries: config.maxRetries ?? 3,
@@ -74,30 +74,19 @@ export class TranslationService {
   private async executeTranslation(item: TranslationQueueItem): Promise<TranslationResult> {
     const { text, targetLang, sourceLang } = item;
 
-    // If source language is not specified, detect it first
-    let detectedSourceLang = sourceLang;
-
-    if (!detectedSourceLang) {
-      const detectResponse = await this.client.detect({ text });
-      detectedSourceLang = detectResponse.languageCode;
-    }
-
-    // Perform translation
-    const translateResponse = await this.client.translate({
-      texts: [text],
+    const response = await this.client.translate({
+      text,
       targetLanguageCode: targetLang,
-      sourceLanguageCode: detectedSourceLang,
+      sourceLanguageCode: sourceLang,
     });
 
-    if (!translateResponse.translations || translateResponse.translations.length === 0) {
+    if (!response.translatedText) {
       throw new Error('Empty translation response');
     }
 
-    const translation = translateResponse.translations[0];
-
     return {
-      translatedText: translation.text,
-      detectedSourceLang: translation.detectedLanguageCode || detectedSourceLang || 'unknown',
+      translatedText: response.translatedText,
+      detectedSourceLang: response.detectedLanguageCode || sourceLang || 'unknown',
       targetLang,
     };
   }
@@ -117,7 +106,6 @@ export class TranslationService {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  // Get queue status for monitoring
   public getQueueStatus(): { queueLength: number; isProcessing: boolean } {
     return {
       queueLength: this.queue.length,

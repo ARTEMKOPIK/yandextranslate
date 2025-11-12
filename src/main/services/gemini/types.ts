@@ -1,28 +1,15 @@
-export interface YandexTranslateRequest {
-  sourceLanguageCode?: string;
-  targetLanguageCode: string;
-  texts: string[];
-  folderId?: string;
-}
-
-export interface YandexTranslateResponse {
-  translations: Array<{
-    text: string;
-    detectedLanguageCode?: string;
-  }>;
-}
-
-export interface YandexDetectRequest {
+export interface GeminiTranslateRequest {
   text: string;
-  languageCodeHints?: string[];
-  folderId?: string;
+  targetLanguageCode: string;
+  sourceLanguageCode?: string;
 }
 
-export interface YandexDetectResponse {
-  languageCode: string;
+export interface GeminiTranslateResponse {
+  translatedText: string;
+  detectedLanguageCode?: string;
 }
 
-export interface YandexApiError {
+export interface GeminiApiError {
   code: number;
   message: string;
   details?: unknown;
