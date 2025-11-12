@@ -1,10 +1,10 @@
 {
-  "name": "yandextranslate",
+  "name": "quicktranslate",
   "version": "1.0.0-rc.1",
-  "description": "A modern, feature-rich desktop translation application powered by Yandex.Translate API",
+  "description": "A modern, feature-rich desktop translation application powered by Google Gemini AI",
   "author": {
-    "name": "Yandex Translate",
-    "email": "dev@yandextranslate.local"
+    "name": "QuickTranslate",
+    "email": "dev@quicktranslate.local"
   },
   "main": "dist/main/index.js",
   "scripts": {
@@ -27,6 +27,7 @@
     "test:e2e:ui": "playwright test --ui"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@tailwindcss/postcss": "^4.1.17",
     "autoprefixer": "^10.4.22",
     "axios": "^1.13.2",
@@ -74,8 +75,8 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-    "appId": "com.yandextranslate.app",
-    "productName": "Yandex Translate",
+    "appId": "com.quicktranslate.app",
+    "productName": "QuickTranslate",
     "files": [
       "dist/**/*"
     ],
@@ -93,7 +94,7 @@
         },
         "portable"
       ],
-      "publisherName": "Yandex Translate",
+      "publisherName": "QuickTranslate",
       "signingHashAlgorithms": [
         "sha256"
       ],
@@ -129,7 +130,7 @@
     "publish": {
       "provider": "github",
       "owner": "your-github-username",
-      "repo": "yandextranslate",
+      "repo": "quicktranslate",
       "releaseType": "release"
     },
     "afterSign": "scripts/notarize.js"

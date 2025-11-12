@@ -14,9 +14,8 @@ describe('TranslationService', () => {
       detect: vi.fn(),
     };
 
-    // Mock YandexApiClient constructor to return our mock client
     const clientModule = await import('../client.js');
-    vi.spyOn(clientModule, 'YandexApiClient').mockImplementation(function (this: any) {
+    vi.spyOn(clientModule, 'GeminiApiClient').mockImplementation(function (this: any) {
       return mockClient;
     } as any);
 
@@ -34,49 +33,10 @@ describe('TranslationService', () => {
   });
 
   describe('translate', () => {
-    it('should translate text successfully with auto-detection', async () => {
-      mockClient.detect.mockResolvedValue({
-        languageCode: 'ru',
-      });
-
+    it('should translate text successfully with source language', async () => {
       mockClient.translate.mockResolvedValue({
-        translations: [
-          {
-            text: 'Hello',
-            detectedLanguageCode: 'ru',
-          },
-        ],
-      });
-
-      const promise = service.translate('Привет', 'en');
-      await vi.runAllTimersAsync();
-      const result = await promise;
-
-      expect(result).toEqual({
         translatedText: 'Hello',
-        detectedSourceLang: 'ru',
-        targetLang: 'en',
-      });
-
-      expect(mockClient.detect).toHaveBeenCalledWith({
-        text: 'Привет',
-      });
-
-      expect(mockClient.translate).toHaveBeenCalledWith({
-        texts: ['Привет'],
-        targetLanguageCode: 'en',
-        sourceLanguageCode: 'ru',
-      });
-    });
-
-    it('should translate text with specified source language', async () => {
-      mockClient.translate.mockResolvedValue({
-        translations: [
-          {
-            text: 'Hello',
-            detectedLanguageCode: 'ru',
-          },
-        ],
+        detectedLanguageCode: 'ru',
       });
 
       const promise = service.translate('Привет', 'en', 'ru');
@@ -89,30 +49,43 @@ describe('TranslationService', () => {
         targetLang: 'en',
       });
 
-      expect(mockClient.detect).not.toHaveBeenCalled();
-
       expect(mockClient.translate).toHaveBeenCalledWith({
-        texts: ['Привет'],
+        text: 'Привет',
         targetLanguageCode: 'en',
         sourceLanguageCode: 'ru',
       });
     });
 
-    it('should retry on failure', async () => {
-      mockClient.detect.mockResolvedValue({
-        languageCode: 'ru',
+    it('should translate text successfully with auto-detection', async () => {
+      mockClient.translate.mockResolvedValue({
+        translatedText: 'Hello',
+        detectedLanguageCode: 'ru',
       });
 
+      const promise = service.translate('Привет', 'en');
+      await vi.runAllTimersAsync();
+      const result = await promise;
+
+      expect(result).toEqual({
+        translatedText: 'Hello',
+        detectedSourceLang: 'ru',
+        targetLang: 'en',
+      });
+
+      expect(mockClient.translate).toHaveBeenCalledWith({
+        text: 'Привет',
+        targetLanguageCode: 'en',
+        sourceLanguageCode: undefined,
+      });
+    });
+
+    it('should retry on failure', async () => {
       mockClient.translate
         .mockRejectedValueOnce(new Error('Network error'))
         .mockRejectedValueOnce(new Error('Network error'))
         .mockResolvedValueOnce({
-          translations: [
-            {
-              text: 'Hello',
-              detectedLanguageCode: 'ru',
-            },
-          ],
+          translatedText: 'Hello',
+          detectedLanguageCode: 'ru',
         });
 
       const promise = service.translate('Привет', 'en');
@@ -124,26 +97,19 @@ describe('TranslationService', () => {
     });
 
     it('should fail after max retries', async () => {
-      mockClient.detect.mockResolvedValue({
-        languageCode: 'ru',
-      });
-
       mockClient.translate.mockRejectedValue(new Error('Network error'));
 
       const promise = service.translate('Привет', 'en');
       await vi.runAllTimersAsync();
 
       await expect(promise).rejects.toThrow('Network error');
-      expect(mockClient.translate).toHaveBeenCalledTimes(4); // Initial + 3 retries
+      expect(mockClient.translate).toHaveBeenCalledTimes(4);
     });
 
     it('should handle empty translation response', async () => {
-      mockClient.detect.mockResolvedValue({
-        languageCode: 'ru',
-      });
-
       mockClient.translate.mockResolvedValue({
-        translations: [],
+        translatedText: '',
+        detectedLanguageCode: 'ru',
       });
 
       const promise = service.translate('Привет', 'en');
@@ -153,16 +119,14 @@ describe('TranslationService', () => {
     });
 
     it('should queue multiple translations', async () => {
-      mockClient.detect.mockResolvedValue({
-        languageCode: 'ru',
-      });
-
       mockClient.translate
         .mockResolvedValueOnce({
-          translations: [{ text: 'Hello', detectedLanguageCode: 'ru' }],
+          translatedText: 'Hello',
+          detectedLanguageCode: 'ru',
         })
         .mockResolvedValueOnce({
-          translations: [{ text: 'World', detectedLanguageCode: 'ru' }],
+          translatedText: 'World',
+          detectedLanguageCode: 'ru',
         });
 
       const promise1 = service.translate('Привет', 'en');
@@ -178,27 +142,47 @@ describe('TranslationService', () => {
     });
 
     it('should enforce rate limiting', async () => {
-      mockClient.detect.mockResolvedValue({
-        languageCode: 'ru',
-      });
-
       mockClient.translate.mockResolvedValue({
-        translations: [{ text: 'Hello', detectedLanguageCode: 'ru' }],
+        translatedText: 'Hello',
+        detectedLanguageCode: 'ru',
       });
 
       const promise1 = service.translate('Привет', 'en');
       const promise2 = service.translate('Привет', 'en');
 
-      // Run all timers to completion
       await vi.runAllTimersAsync();
 
       const [result1, result2] = await Promise.all([promise1, promise2]);
 
-      // Both should complete successfully
       expect(result1.translatedText).toBe('Hello');
       expect(result2.translatedText).toBe('Hello');
-      // Should have been called twice (once for each translation)
       expect(mockClient.translate).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle missing detectedLanguageCode', async () => {
+      mockClient.translate.mockResolvedValue({
+        translatedText: 'Hello',
+        detectedLanguageCode: undefined,
+      });
+
+      const promise = service.translate('Привет', 'en', 'ru');
+      await vi.runAllTimersAsync();
+      const result = await promise;
+
+      expect(result.detectedSourceLang).toBe('ru');
+    });
+
+    it('should default to unknown when no language info available', async () => {
+      mockClient.translate.mockResolvedValue({
+        translatedText: 'Hello',
+        detectedLanguageCode: undefined,
+      });
+
+      const promise = service.translate('Привет', 'en');
+      await vi.runAllTimersAsync();
+      const result = await promise;
+
+      expect(result.detectedSourceLang).toBe('unknown');
     });
   });
 
@@ -212,24 +196,16 @@ describe('TranslationService', () => {
     });
 
     it('should show queue length when items are added', async () => {
-      mockClient.detect.mockImplementation(
-        () => new Promise((resolve) => setTimeout(() => resolve({ languageCode: 'ru' }), 1000))
-      );
-
       mockClient.translate.mockImplementation(
         () =>
           new Promise((resolve) =>
-            setTimeout(
-              () => resolve({ translations: [{ text: 'Hello', detectedLanguageCode: 'ru' }] }),
-              1000
-            )
+            setTimeout(() => resolve({ translatedText: 'Hello', detectedLanguageCode: 'ru' }), 1000)
           )
       );
 
       service.translate('Привет', 'en');
       service.translate('Мир', 'en');
 
-      // Before processing starts
       await vi.advanceTimersByTimeAsync(0);
       const status = service.getQueueStatus();
       expect(status.queueLength).toBeGreaterThan(0);
